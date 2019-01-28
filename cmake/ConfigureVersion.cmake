@@ -1,0 +1,25 @@
+function(gris_version_configure target)
+# gris_version_configure provides a configured version file in the current binary folder.
+#
+# ARGUMENTS
+# gris_version_configure(target)
+  gris_get_dependent_libraries(libraries ${target} TYPE SHARED_LIBRARY IMPORTED "BOOL:FALSE")
+  set(Versions "")
+  get_property(RegisteredModules GLOBAL PROPERTY REGISTERED_MODULES)
+  set(glue "")
+  foreach(lib IN LISTS libraries)
+    if(lib IN_LIST RegisteredModules)
+      get_property(Name TARGET ${lib} PROPERTY NAME)
+      foreach(comp "Major" "Minor" "Patch" "Tweak")
+        string(TOUPPER ${comp} _upper)
+        get_property(${comp} GLOBAL PROPERTY ${lib}_VERSION_${_upper})
+      endforeach()
+      set(Versions "${Versions}${glue}{ \"${Name}${CMAKE_SHARED_LIBRARY_SUFFIX}\", {${Major}, ${Minor}, ${Patch}, ${Tweak}} }")
+      set(glue ",\n  ")
+    else()
+      message(WARNING "The target ${lib} has no version information associated and cannot be checked. 
+  Use gstd/gris_configure_resource_rc to embed version information into dlls.")
+    endif()
+  endforeach()
+	configure_file("${CMAKE_SOURCE_DIR}/cmake/requiredLibraryVersions.hxx.in" "private/requiredLibraryVersions.hxx")
+endfunction()

@@ -1,0 +1,10 @@
+#pragma once
+
+#include <map>
+#include <string>
+#include <array>
+
+const std::map<std::string, std::array<unsigned int,4>> libraries = 
+{
+  @Versions@
+};
