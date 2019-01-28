@@ -1,0 +1,195 @@
+<?xml version="1.0"?>
+<Mukno>
+	<Conf_IPCAI2019>
+		<SharedParameters>
+			<PatientDataFile>../resources/MukApplications/Conf_IPCAI2019/PatientData.mukcfg</PatientDataFile>
+			<DataSet01 />
+			<DataSet02 />
+			<SkipPatients />
+			<SkipPatientsUnequal />
+			<SkipPatientsLarger />
+			<SkipPatientsSmaller />
+			<OutputDir>../results/MukApplications/Conf_IPCAI2019</OutputDir>
+			<LocalBasePath>M:/MUKNO2/Rohdaten/</LocalBasePath>
+			<DataSetRootDir>M:/MUKNO2/Rohdaten/data/preoperative/general</DataSetRootDir>
+		</SharedParameters>
+		<Preprocessing>
+			<Algorithm>
+				<Alias>ManualPASM</Alias>
+				<Compute>false</Compute>
+				<Priority>0</Priority>
+				<Filename>../resources/MukApplications/Conf_IPCAI2019/ManualPASM.alg</Filename>
+				<IDs>9 10 11 12 13 14 15 16 17 18</IDs>
+				<OutIds>26</OutIds>
+				<OutTypes>ImageInt3D</OutTypes>
+				<ParentAlgorithm />
+				<LastEvaluationDate />
+			</Algorithm>
+			<Algorithm>
+				<Alias>Unet</Alias>
+				<Compute>false</Compute>
+				<Priority>0</Priority>
+				<Filename />
+				<IDs>0</IDs>
+				<OutIds />
+				<OutTypes />
+				<ParentAlgorithm />
+				<LastEvaluationDate>last_result</LastEvaluationDate>
+			</Algorithm>
+			<Algorithm>
+				<Alias>UnetToPASMInit</Alias>
+				<Compute>false</Compute>
+				<Priority>1</Priority>
+				<Filename>../resources/MukApplications/Conf_IPCAI2019/UnetToPASMInit.alg</Filename>
+				<IDs>0</IDs>
+				<OutIds>11 12 13 14 15 16 17 18 19</OutIds>
+				<OutTypes>VtkPolyData</OutTypes>
+				<ParentAlgorithm>Unet</ParentAlgorithm>
+				<LastEvaluationDate>2018-10-09_18-03-22</LastEvaluationDate>
+			</Algorithm>
+			<Algorithm>
+				<Alias>AutomatedPASM</Alias>
+				<Compute>false</Compute>
+				<Priority>2</Priority>
+				<Filename>../resources/MukApplications/Conf_IPCAI2019/AutomatedPASM.alg</Filename>
+				<IDs>9 27 28 29 30 31 32 33 34 35</IDs>
+				<OutIds>26</OutIds>
+				<OutTypes>ImageInt3D</OutTypes>
+				<ParentAlgorithm>UnetToPASMInit</ParentAlgorithm>
+				<LastEvaluationDate>2018-10-09_18-16-29</LastEvaluationDate>
+			</Algorithm>
+		</Preprocessing>
+		<Experiments>
+			<DiceExperiment>
+				<TrainModels>false</TrainModels>
+				<Compute>false</Compute>
+				<Evaluate>false</Evaluate>
+				<LastEvaluationDate>2018-11-02_14-10-43</LastEvaluationDate>
+				<Algorithms>
+					<Algorithm>
+						<Alias>ManualPASM_PASM1</Alias>
+						<Compute>false</Compute>
+						<Priority>0</Priority>
+						<Filename>../resources/MukApplications/Conf_IPCAI2019/ManualPASM_PASM1.alg</Filename>
+						<IDs>9 10 11 12 13 14 15 16 17 18</IDs>
+						<OutIds>26 10 11 12 13 14 15 16 17 18 10 11 12 13 14 15 16 17 18</OutIds>
+						<OutTypes>ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData</OutTypes>
+						<ParentAlgorithm />
+						<LastEvaluationDate>2018-10-29_10-59-29</LastEvaluationDate>
+					</Algorithm>
+					<Algorithm>
+						<Alias>ManualPASM_PASM2</Alias>
+						<Compute>false</Compute>
+						<Priority>0</Priority>
+						<Filename>../resources/MukApplications/Conf_IPCAI2019/ManualPASM_PASM2.alg</Filename>
+						<IDs>9 10 11 12 13 14 15 16 17 18</IDs>
+						<OutIds>26 10 11 12 13 14 15 16 17 18 10 11 12 13 14 15 16 17 18</OutIds>
+						<OutTypes>ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D ImageInt3D VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData</OutTypes>
+						<ParentAlgorithm />
+						<LastEvaluationDate>2018-10-29_11-37-22</LastEvaluationDate>
+					</Algorithm>
+					<Algorithm>
+						<Alias>UnetToPASMInit_PASM1</Alias>
+						<Compute>true</Compute>
+						<Priority>1</Priority>
+						<Filename>../resources/MukApplications/Conf_IPCAI2019/UnetToPASMInit_PASM1.alg</Filename>
+						<IDs>0</IDs>
+						<OutIds>11 12 13 14 15 16 17 18 19</OutIds>
+						<OutTypes>VtkPolyData</OutTypes>
+						<ParentAlgorithm>Unet</ParentAlgorithm>
+						<LastEvaluationDate>2018-11-02_14-10-43</LastEvaluationDate>
+					</Algorithm>
+					<Algorithm>
+						<Alias>AutomatedPASM_PASM1</Alias>
+						<Compute>true</Compute>
+						<Priority>2</Priority>
+						<Filename>../resources/MukApplications/Conf_IPCAI2019/AutomatedPASM_PASM1.alg</Filename>
+						<IDs>9 27 28 29 30 31 32 33 34 35</IDs>
+						<OutIds>26 10 11 12 13 14 15 16 17 18</OutIds>
+						<OutTypes>ImageInt3D VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData</OutTypes>
+						<ParentAlgorithm>UnetToPASMInit_PASM1</ParentAlgorithm>
+						<LastEvaluationDate>2018-11-02_14-13-35</LastEvaluationDate>
+					</Algorithm>
+					<Algorithm>
+						<Alias>UnetToPASMInit_PASM2</Alias>
+						<Compute>true</Compute>
+						<Priority>1</Priority>
+						<Filename>../resources/MukApplications/Conf_IPCAI2019/UnetToPASMInit_PASM2.alg</Filename>
+						<IDs>0</IDs>
+						<OutIds>11 12 13 14 15 16 17 18 19</OutIds>
+						<OutTypes>VtkPolyData</OutTypes>
+						<ParentAlgorithm>Unet</ParentAlgorithm>
+						<LastEvaluationDate>2018-11-02_14-47-59</LastEvaluationDate>
+					</Algorithm>
+					<Algorithm>
+						<Alias>AutomatedPASM_PASM2</Alias>
+						<Compute>true</Compute>
+						<Priority>2</Priority>
+						<Filename>../resources/MukApplications/Conf_IPCAI2019/AutomatedPASM_PASM2.alg</Filename>
+						<IDs>9 27 28 29 30 31 32 33 34 35</IDs>
+						<OutIds>26 10 11 12 13 14 15 16 17 18</OutIds>
+						<OutTypes>ImageInt3D VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData VtkPolyData</OutTypes>
+						<ParentAlgorithm>UnetToPASMInit_PASM2</ParentAlgorithm>
+						<LastEvaluationDate>2018-11-02_14-50-26</LastEvaluationDate>
+					</Algorithm>
+				</Algorithms>
+			</DiceExperiment>
+			<MonteCarloExperiment>
+				<Compute>false</Compute>
+				<Evaluate>false</Evaluate>
+				<LastEvaluationDate />
+			</MonteCarloExperiment>
+			<CochleaExperiment>
+				<Compute>false</Compute>
+				<Evaluate>false</Evaluate>
+				<Planning>
+					<AccessCanals>
+						<AccessCanal>Cochlea-Access</AccessCanal>
+					</AccessCanals>
+					<SegmentationDirectoryAuto />
+					<SegmentationDirectoryManual />
+					<PlanningTime>1.0</PlanningTime>
+					<Planner>Linear-Planner</Planner>
+					<Interpolator>Linear-Interpolator</Interpolator>
+					<PlannerParameters />
+					<InterpolatorParameters>
+						<InterpolationType>resolution</InterpolationType>
+						<Resolution>0.1</Resolution>
+					</InterpolatorParameters>
+				</Planning>
+				<LastEvaluationDate>2018-11-02_18-10-02</LastEvaluationDate>
+			</CochleaExperiment>
+			<VestibularSchwannomaExperiment>
+				<Compute>false</Compute>
+				<Evaluate>true</Evaluate>
+				<Planning>
+					<AccessCanals>
+						<AccessCanal>SSC-Access</AccessCanal>
+						<AccessCanal>RL-Access</AccessCanal>
+					</AccessCanals>
+					<SegmentationDirectoryAuto />
+					<SegmentationDirectoryManual />
+					<PlanningTime>2.0</PlanningTime>
+					<Planner>Spline-Based-RRT-Connect</Planner>
+					<Interpolator>Yang-Spiral-Interpolator</Interpolator>
+					<PlannerParameters>
+						<GoalBias>0.25</GoalBias>
+						<NearestBallRadius>1.0</NearestBallRadius>
+						<Calc-Time>0.1</Calc-Time>
+						<Step-Size>2.0</Step-Size>
+					</PlannerParameters>
+					<InterpolatorParameters>
+						<InterpolationType>resolution</InterpolationType>
+						<Resolution>0.1</Resolution>
+					</InterpolatorParameters>
+				</Planning>
+				<LastEvaluationDate>2018-11-03_18-01-32</LastEvaluationDate>
+			</VestibularSchwannomaExperiment>
+			<ValidatePASM>
+				<Compute>false</Compute>
+				<Evaluate>false</Evaluate>
+				<LastEvaluationDate />
+			</ValidatePASM>
+		</Experiments>
+	</Conf_IPCAI2019>
+</Mukno>

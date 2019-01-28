@@ -1,0 +1,271 @@
+<?xml version="1.0"?>
+<Mukno>
+	<version>0.6.0.0</version>
+	<SurgeryPlanning>
+		<MukScene>
+			<SceneName />
+			<Obstacles>
+				<Obstacle>
+					<Name>InternalCarotidArtery</Name>
+					<File>data/preoperative/general/P04/Vtk/InternalCarotidArtery.vtk</File>
+					<Active>true</Active>
+					<Color>1 0 0</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>JugularVein</Name>
+					<File>data/preoperative/general/P04/Vtk/JugularVein.vtk</File>
+					<Active>true</Active>
+					<Color>0 0 1</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>ExternalAuditoryCanal</Name>
+					<File>data/preoperative/general/P04/Vtk/ExternalAuditoryCanal.vtk</File>
+					<Active>true</Active>
+					<Color>0.666667 0.666667 0.498039</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>InternalAuditoryCanal</Name>
+					<File>data/preoperative/general/P04/Vtk/InternalAuditoryCanal.vtk</File>
+					<Active>true</Active>
+					<Color>0.666667 0.666667 0.498039</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>FacialNerve</Name>
+					<File>data/preoperative/general/P04/Vtk/FacialNerve.vtk</File>
+					<Active>true</Active>
+					<Color>1 1 0.498039</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>Brain</Name>
+					<File>data/preoperative/general/P04/Vtk/Brain.vtk</File>
+					<Active>true</Active>
+					<Color>0.666667 0.666667 1</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>ChordaTympani</Name>
+					<File>data/preoperative/general/P04/Vtk/ChordaTympani.vtk</File>
+					<Active>true</Active>
+					<Color>1 1 0.498039</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>Cochlea</Name>
+					<File>data/preoperative/general/P04/vtk/Cochlea.vtk</File>
+					<Active>false</Active>
+					<Color>0.666667 0.666667 0.498039</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>SemicircularCanals</Name>
+					<File>data/preoperative/general/P04/Vtk/SemicircularCanals.vtk</File>
+					<Active>true</Active>
+					<Color>0.666667 0.666667 0.498039</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>Ossicles</Name>
+					<File>data/preoperative/general/P04/Vtk/Ossicles.vtk</File>
+					<Active>true</Active>
+					<Color>0.666667 0.666667 0.498039</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>Skull</Name>
+					<File>data/preoperative/general/P04/Vtk/Skull.vtk</File>
+					<Active>false</Active>
+					<Color>1 0.760784 0.6</Color>
+					<Opacity>1</Opacity>
+					<Visibility>0</Visibility>
+				</Obstacle>
+			</Obstacles>
+			<PathCollections>
+				<PathCollection>
+					<Name>SSC-Access</Name>
+					<InactiveObstacles>
+						<Obstacle>Skull</Obstacle>
+						<Obstacle>InternalAuditoryCanal</Obstacle>
+						<Obstacle>Skull</Obstacle>
+						<Obstacle />
+					</InactiveObstacles>
+					<ProblemDefinition>
+						<Bounds-Max>80 -130 425</Bounds-Max>
+						<Bounds-Min>20 -160 395</Bounds-Min>
+						<GoalAngleThreshold>0.087266499999999997</GoalAngleThreshold>
+						<GoalThreshold>1</GoalThreshold>
+						<Kappa>0.050000000000000003</Kappa>
+						<Radius>1</Radius>
+						<SafetyDistance>0.5</SafetyDistance>
+						<FileName>P04_baseScenarios/ProblemDefinition_SSC-Access.txt</FileName>
+						<StartRegions>
+							<StartRegion0>
+								<ClassName>StateRegionSphere</ClassName>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<Resolution>1</Resolution>
+								<Color>1 0.5 0</Color>
+								<Opacity>0.75</Opacity>
+								<Phi>0</Phi>
+								<SampleResolution>1</SampleResolution>
+								<Scale>1</Scale>
+								<Visibility>0</Visibility>
+							</StartRegion0>
+						</StartRegions>
+						<GoalRegions>
+							<GoalRegion0>
+								<ClassName>StateRegionSphere</ClassName>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<Resolution>1</Resolution>
+								<Color>1 0.5 0</Color>
+								<Opacity>0.75</Opacity>
+								<Phi>0</Phi>
+								<SampleResolution>1</SampleResolution>
+								<Scale>1</Scale>
+								<Visibility>0</Visibility>
+							</GoalRegion0>
+						</GoalRegions>
+						<Waypoints />
+					</ProblemDefinition>
+					<MukPaths />
+				</PathCollection>
+				<PathCollection>
+					<Name>Cochlea-Access</Name>
+					<InactiveObstacles>
+						<Obstacle>Skull</Obstacle>
+						<Obstacle>Cochlea</Obstacle>
+						<Obstacle>Skull</Obstacle>
+						<Obstacle>Cochlea</Obstacle>
+					</InactiveObstacles>
+					<ProblemDefinition>
+						<Bounds-Max>80 -130 425</Bounds-Max>
+						<Bounds-Min>20 -160 395</Bounds-Min>
+						<GoalAngleThreshold>0.087266499999999997</GoalAngleThreshold>
+						<GoalThreshold>1</GoalThreshold>
+						<Kappa>0.050000000000000003</Kappa>
+						<Radius>0.5</Radius>
+						<SafetyDistance>0.29999999999999999</SafetyDistance>
+						<FileName>P04_baseScenarios/ProblemDefinition_Cochlea-Access.txt</FileName>
+						<StartRegions>
+							<StartRegion0>
+								<ClassName>SurfaceStateRegion</ClassName>
+								<Color>0.5 0.5 0.5</Color>
+								<Opacity>1</Opacity>
+								<Visibility>1</Visibility>
+							</StartRegion0>
+						</StartRegions>
+						<GoalRegions>
+							<GoalRegion0>
+								<ClassName>StateRegionSphere</ClassName>
+								<Phi>0.78539816339744828</Phi>
+								<Radius>1</Radius>
+								<Resolution>80</Resolution>
+								<Color>0.5 0.5 0.5</Color>
+								<Opacity>1</Opacity>
+								<Phi>45</Phi>
+								<SampleResolution>80</SampleResolution>
+								<Scale>1</Scale>
+								<Visibility>1</Visibility>
+							</GoalRegion0>
+						</GoalRegions>
+						<Waypoints />
+					</ProblemDefinition>
+					<MukPaths />
+				</PathCollection>
+				<PathCollection>
+					<Name>RL-Access</Name>
+					<InactiveObstacles>
+						<Obstacle>Skull</Obstacle>
+						<Obstacle>InternalAuditoryCanal</Obstacle>
+						<Obstacle>Skull</Obstacle>
+						<Obstacle>InternalAuditoryCanal</Obstacle>
+					</InactiveObstacles>
+					<ProblemDefinition>
+						<Bounds-Max>80 -130 425</Bounds-Max>
+						<Bounds-Min>20 -160 395</Bounds-Min>
+						<GoalAngleThreshold>0.087266499999999997</GoalAngleThreshold>
+						<GoalThreshold>1</GoalThreshold>
+						<Kappa>0.050000000000000003</Kappa>
+						<Radius>1</Radius>
+						<SafetyDistance>1</SafetyDistance>
+						<FileName>P04_baseScenarios/ProblemDefinition_RL-Access.txt</FileName>
+						<StartRegions>
+							<StartRegion0>
+								<ClassName>StateRegionSphere</ClassName>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<Resolution>1</Resolution>
+								<Color>1 0.5 0</Color>
+								<Opacity>0.75</Opacity>
+								<Phi>0</Phi>
+								<SampleResolution>1</SampleResolution>
+								<Scale>1</Scale>
+								<Visibility>0</Visibility>
+							</StartRegion0>
+						</StartRegions>
+						<GoalRegions>
+							<GoalRegion0>
+								<ClassName>StateRegionSphere</ClassName>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<Resolution>1</Resolution>
+								<Color>1 0.5 0</Color>
+								<Opacity>0.75</Opacity>
+								<Phi>0</Phi>
+								<SampleResolution>1</SampleResolution>
+								<Scale>1</Scale>
+								<Visibility>0</Visibility>
+							</GoalRegion0>
+						</GoalRegions>
+						<Waypoints />
+					</ProblemDefinition>
+					<MukPaths />
+				</PathCollection>
+			</PathCollections>
+		</MukScene>
+		<Configuration>
+			<Planning>
+				<Planner>
+					<Type>Linear-Planner</Type>
+					<Calc-Time>0.25</Calc-Time>
+					<MaxDistToGoal>0.5</MaxDistToGoal>
+					<Resolution>0.10000000000000001</Resolution>
+					<Step-Size>2</Step-Size>
+				</Planner>
+				<Pruner>
+					<Type>Yang-Spiral-Pruner</Type>
+					<MaxStepSize>0.000000</MaxStepSize>
+					<MaxDistance>0.800000</MaxDistance>
+				</Pruner>
+				<Interpolator>
+					<Type>Linear-Interpolator</Type>
+					<InterpolationType>resolution</InterpolationType>
+					<PointsPerSegment>5</PointsPerSegment>
+					<Resolution>0.100000</Resolution>
+				</Interpolator>
+			</Planning>
+			<Visualization>
+				<Camera>
+					<FocalPoint>52.5097 -146.379 408.848</FocalPoint>
+					<Position>112.638 -132.135 418.548</Position>
+					<ViewUp>-0.16019 0.00405489 0.987078</ViewUp>
+				</Camera>
+			</Visualization>
+		</Configuration>
+	</SurgeryPlanning>
+</Mukno>
