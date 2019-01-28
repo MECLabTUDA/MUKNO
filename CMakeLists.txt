@@ -116,6 +116,17 @@ if (OPENMP_FOUND)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
+# ----------------------
+# find and configure Qt
+# ----------------------
+find_package(Qt5Widgets 5.5 REQUIRED)
+find_package(Qt5PrintSupport 5.5 REQUIRED)
+if(${Qt5Widgets_FOUND})
+  get_filename_component(_QT_DIR_TEMP "${Qt5Widgets_DIR}" PATH)
+  get_filename_component(_QT_DIR_TEMP "${_QT_DIR_TEMP}" PATH)
+  get_filename_component(QT_DIR "${_QT_DIR_TEMP}" PATH)
+endif()
+
 #Use solution folders.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
