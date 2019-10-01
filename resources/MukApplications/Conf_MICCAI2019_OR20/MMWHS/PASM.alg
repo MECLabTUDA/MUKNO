@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<Mukno>
+	<Algorithm>
+		<AlgNodes>
+			<AlgNode>
+				<Name>ImageReader</Name>
+				<ID>0</ID>
+				<Properties>
+					<Alias />
+					<DisplayType>Image3D</DisplayType>
+					<Filename>D:/DataSets/MMWHS/ct_train2/ct_train_1011_image.nii</Filename>
+				</Properties>
+				<AlgView>
+					<Position>
+						<X>-238.000000</X>
+						<Y>-378.000000</Y>
+					</Position>
+				</AlgView>
+			</AlgNode>
+			<AlgNode>
+				<Name>ProbabilisticActiveShapeModel</Name>
+				<ID>1</ID>
+				<Properties>
+					<Alias />
+					<Alpha>0.0060000000000000001</Alpha>
+					<AppearanceModelOutputFile>M:/groups/medical/MUKNO2/TP01_Planning/MuknoI_ModelRecreationData/ModelFiles/Cochlea/Cochlea_AM.amdl</AppearanceModelOutputFile>
+					<BaseSpacing>0.20000000000000001</BaseSpacing>
+					<ConfigFile />
+					<DisplayType>Overlay3D</DisplayType>
+					<FeatureFitness>Inside-Outside</FeatureFitness>
+					<InitFile>M:/groups/medical/MUKNO2/TP01_Planning/MuknoI_ModelRecreationData/InitFiles/Cochlea/P23_Cochlea_BB.init</InitFile>
+					<Iterations>15</Iterations>
+					<Label>1</Label>
+					<NumResolutionLevels>1</NumResolutionLevels>
+					<ProfileLength>2</ProfileLength>
+					<SearchVicinity>5</SearchVicinity>
+					<TrainingSetConfigFile>M:/groups/medical/MUKNO2/TP01_Planning/MuknoI_ModelRecreationData/ConfigFiles/Cochlea/Cochlea_training_data_set.txt</TrainingSetConfigFile>
+				</Properties>
+				<AlgView>
+					<Position>
+						<X>-130.000000</X>
+						<Y>-231.000000</Y>
+					</Position>
+				</AlgView>
+			</AlgNode>
+			<AlgNode>
+				<Name>PolyDataReader</Name>
+				<ID>2</ID>
+				<Properties>
+					<Alias />
+					<DisplayType>PolyData</DisplayType>
+					<Filename />
+				</Properties>
+				<AlgView>
+					<Position>
+						<X>-26.000000</X>
+						<Y>-376.000000</Y>
+					</Position>
+				</AlgView>
+			</AlgNode>
+		</AlgNodes>
+		<Edges>
+			<Edge>
+				<SourceId>0</SourceId>
+				<SourcePortId>0</SourcePortId>
+				<TargetId>1</TargetId>
+				<TargetPortId>0</TargetPortId>
+			</Edge>
+			<Edge>
+				<SourceId>2</SourceId>
+				<SourcePortId>0</SourcePortId>
+				<TargetId>1</TargetId>
+				<TargetPortId>1</TargetPortId>
+			</Edge>
+		</Edges>
+	</Algorithm>
+</Mukno>

@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<Mukno>
+	<version>0.6.0.0</version>
+	<SurgeryPlanning>
+		<MukScene>
+			<SceneName />
+			<Obstacles>
+				<Obstacle>
+					<Name>Aorta</Name>
+					<File>Patient_02/Aorta.vtk</File>
+					<Active>true</Active>
+					<Color>1 1 0</Color>
+					<Opacity>0.25</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>Esophagus</Name>
+					<File>Patient_02/Esophagus.vtk</File>
+					<Active>true</Active>
+					<Color>1 0 0</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>Heart</Name>
+					<File>Patient_02/Heart.vtk</File>
+					<Active>true</Active>
+					<Color>1 0 1</Color>
+					<Opacity>0.25</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>Trachea</Name>
+					<File>Patient_02/Trachea.vtk</File>
+					<Active>true</Active>
+					<Color>0 0 1</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+			</Obstacles>
+			<PathCollections>
+				<PathCollection>
+					<Name>Heart-Access</Name>
+					<InactiveObstacles />
+					<ProblemDefinition>
+						<Bounds-Max>84.9608 32.2264 106.75</Bounds-Max>
+						<Bounds-Min>-50.7813 -109.251 -195.75</Bounds-Min>
+						<GoalAngleThreshold>0.78539816339744828</GoalAngleThreshold>
+						<GoalThreshold>1</GoalThreshold>
+						<Kappa>0.2</Kappa>
+						<Radius>0.5</Radius>
+						<SafetyDistance>3</SafetyDistance>
+						<FileName>scene/ProblemDefinition_Heart-Access.txt</FileName>
+						<StartRegions>
+							<StartRegion0>
+								<ClassName>StateRegionSphere</ClassName>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<Resolution>1</Resolution>
+								<Color>0.5 0.5 0.5</Color>
+								<Opacity>1</Opacity>
+								<Phi>0</Phi>
+								<SampleResolution>1</SampleResolution>
+								<Scale>1</Scale>
+								<Visibility>1</Visibility>
+							</StartRegion0>
+						</StartRegions>
+						<GoalRegions>
+							<GoalRegion0>
+								<ClassName>StateRegionSphere</ClassName>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<Resolution>1</Resolution>
+								<Color>0.5 0.5 0.5</Color>
+								<Opacity>1</Opacity>
+								<Phi>0</Phi>
+								<SampleResolution>1</SampleResolution>
+								<Scale>1</Scale>
+								<Visibility>1</Visibility>
+							</GoalRegion0>
+						</GoalRegions>
+						<Waypoints />
+					</ProblemDefinition>
+					<MukPaths />
+				</PathCollection>
+			</PathCollections>
+		</MukScene>
+		<Configuration>
+			<Planning>
+				<Planner>
+					<Type>Spline-Based-RRT-Connect</Type>
+					<Calc-Time>5</Calc-Time>
+					<Connection_Range>60</Connection_Range>
+					<GoalBias>0</GoalBias>
+					<NearestBallRadius>10</NearestBallRadius>
+					<Step-Size>20</Step-Size>
+					<Verbose>0</Verbose>
+				</Planner>
+				<Pruner>
+					<Type>Yang-Spiral-Pruner</Type>
+					<MaxStepSize>0.000000</MaxStepSize>
+					<MaxDistance>1.500000</MaxDistance>
+				</Pruner>
+				<Interpolator>
+					<Type>Yang-Spiral-Interpolator</Type>
+					<InterpolationType>resolution</InterpolationType>
+					<PointsPerSegment>5</PointsPerSegment>
+					<Resolution>0.100000</Resolution>
+				</Interpolator>
+			</Planning>
+			<Visualization>
+				<Camera>
+					<FocalPoint>-54.8215 1.03453 -75.247</FocalPoint>
+					<Position>197.544 -105.445 1.46991</Position>
+					<ViewUp>-0.219163 0.172465 0.960325</ViewUp>
+				</Camera>
+			</Visualization>
+		</Configuration>
+	</SurgeryPlanning>
+</Mukno>
