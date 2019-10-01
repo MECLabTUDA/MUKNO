@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<Mukno>
+	<version>0.6.0.0</version>
+	<SurgeryPlanning>
+		<MukScene>
+			<SceneName />
+			<Obstacles>
+				<Obstacle>
+					<Name>Aorta</Name>
+					<File>D:/build/x64/release/MUKNO_II_alternative/RelWithDebInfo/results/MukApplications/Conf_IROS2019/SegThor/Data\Patient_20\Aorta_cropped.vtk</File>
+					<Active>true</Active>
+					<Color>1 1 0</Color>
+					<Opacity>0.25</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>Esophagus</Name>
+					<File>D:/build/x64/release/MUKNO_II_alternative/RelWithDebInfo/results/MukApplications/Conf_IROS2019/SegThor/Data\Patient_20\Esophagus.vtk</File>
+					<Active>true</Active>
+					<Color>1 0 0</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>Heart</Name>
+					<File>D:/build/x64/release/MUKNO_II_alternative/RelWithDebInfo/results/MukApplications/Conf_IROS2019/SegThor/Data\Patient_20\Heart_cropped.vtk</File>
+					<Active>true</Active>
+					<Color>1 0 1</Color>
+					<Opacity>0.25</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>Trachea</Name>
+					<File>D:/build/x64/release/MUKNO_II_alternative/RelWithDebInfo/results/MukApplications/Conf_IROS2019/SegThor/Data\Patient_20\Trachea.vtk</File>
+					<Active>true</Active>
+					<Color>0 0 1</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+			</Obstacles>
+			<PathCollections>
+				<PathCollection>
+					<Name>Heart-Access</Name>
+					<InactiveObstacles />
+					<ProblemDefinition>
+						<Bounds-Max>132.617 42.3829 -285.29</Bounds-Max>
+						<Bounds-Min>-54.6874 -123.047 -537.79</Bounds-Min>
+						<GoalAngleThreshold>0.78539816339744828</GoalAngleThreshold>
+						<GoalThreshold>1</GoalThreshold>
+						<Kappa>0.10000000000000001</Kappa>
+						<Radius>0.5</Radius>
+						<SafetyDistance>1</SafetyDistance>
+						<FileName>scene/ProblemDefinition_Heart-Access.txt</FileName>
+						<StartRegions>
+							<StartRegion0>
+								<ClassName>StateRegionSphere</ClassName>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<Resolution>1</Resolution>
+								<Color>0.5 0.5 0.5</Color>
+								<Opacity>1</Opacity>
+								<Phi>0</Phi>
+								<SampleResolution>1</SampleResolution>
+								<Scale>1</Scale>
+								<Visibility>1</Visibility>
+							</StartRegion0>
+						</StartRegions>
+						<GoalRegions>
+							<GoalRegion0>
+								<ClassName>StateRegionSphere</ClassName>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<Resolution>1</Resolution>
+								<Color>0.5 0.5 0.5</Color>
+								<Opacity>1</Opacity>
+								<Phi>0</Phi>
+								<SampleResolution>1</SampleResolution>
+								<Scale>1</Scale>
+								<Visibility>1</Visibility>
+							</GoalRegion0>
+						</GoalRegions>
+						<Waypoints />
+					</ProblemDefinition>
+					<MukPaths />
+				</PathCollection>
+			</PathCollections>
+		</MukScene>
+		<Configuration>
+			<Planning>
+				<Planner>
+					<Type>Spline-Based-RRT-Connect</Type>
+					<Calc-Time>5</Calc-Time>
+					<Connection_Range>45</Connection_Range>
+					<GoalBias>0</GoalBias>
+					<NearestBallRadius>1</NearestBallRadius>
+					<Step-Size>15</Step-Size>
+					<Verbose>0</Verbose>
+				</Planner>
+				<Pruner>
+					<Type>BezierToCircularArcs</Type>
+					<MaxStepSize>0.000000</MaxStepSize>
+					<MaxDistance>1.500000</MaxDistance>
+				</Pruner>
+				<Interpolator>
+					<Type>Linear-Interpolator</Type>
+					<InterpolationType>resolution</InterpolationType>
+					<PointsPerSegment>5</PointsPerSegment>
+					<Resolution>0.100000</Resolution>
+				</Interpolator>
+			</Planning>
+			<Visualization>
+				<Camera>
+					<FocalPoint>1.73621 -55.8591 -409.877</FocalPoint>
+					<Position>442.471 -221.9 -385.001</Position>
+					<ViewUp>-0.0180068 0.101227 0.9947</ViewUp>
+				</Camera>
+			</Visualization>
+		</Configuration>
+	</SurgeryPlanning>
+</Mukno>

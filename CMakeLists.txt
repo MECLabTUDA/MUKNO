@@ -132,6 +132,17 @@ if(${Qt5Widgets_FOUND})
   get_filename_component(QT_DIR "${_QT_DIR_TEMP}" PATH)
 endif()
 
+# ----------------------
+# set optional libraries and applications that use convex optimization (and therefore the Gurobi Library)
+# ----------------------
+option(MukLibs_ConvexOptimization "Library that provides convex optimization algorithms" OFF)
+if (${MukLibs_ConvexOptimization})
+  find_package(GUROBI REQUIRED)
+  if(NOT ${GUROBI_FOUND})
+    message(FATAL_ERROR "Gurobi not found.")
+  endif()
+endif()
+
 #Use solution folders.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

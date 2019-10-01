@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<Mukno>
+	<Conf_IROS2019>
+		<SharedParameters>
+			<DataSets>../resources/MukApplications/Conf_MICCAI2019/DataSets.mukcfg</DataSets>
+		</SharedParameters>
+		<Experiments>
+			<SegThorExperiment>
+			</SegThorExperiment>
+			<TemporalBoneExperimentReal>
+			</TemporalBoneExperimentReal>
+		</Experiments>
+	</Conf_IROS2019>
+</Mukno>

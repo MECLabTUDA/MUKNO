@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<Mukno>
+	<Accesses>
+		<Access>Heart-Access</Access>
+	</Accesses>
+	<Planner>Spline-Based-RRT-Connect</Planner>
+	<Optimizer>ConvexBezierSplineOptimizer</Optimizer>
+	<Interpolator>Yang-Spiral-Interpolator</Interpolator>
+	<PlannerParameters>
+		<Parameters planner="Spline-Based-RRT-Connect">
+			<GoalBias>0.0</GoalBias>
+			<NearestBallRadius>1.0</NearestBallRadius>
+			<Calc-Time>2.5</Calc-Time>
+			<Step-Size>15.0</Step-Size>
+			<ConeLength>45.0</ConeLength>
+			<ConeRadius>5.0</ConeRadius>
+			<MaxChildren>10</MaxChildren>
+		</Parameters>
+	</PlannerParameters>
+	<OptimizerParameters>
+		<Parameters optimizer="ConvexBezierSplineOptimizer">
+			<Verbose>false</Verbose>
+			<MaxDistancePenalty>30</MaxDistancePenalty>
+			<DistanceCost>true</DistanceCost>
+			<LengthCost>false</LengthCost>
+			<CurvatureConstraint>false</CurvatureConstraint>
+			<WeightLength>0.1</WeightLength>
+			<WeightObstacles>10</WeightObstacles>
+			<InitialTrustRegionSize>0.5</InitialTrustRegionSize>
+			<MaxTrustRegionSize>1.0</MaxTrustRegionSize>
+		</Parameters>
+		<Parameters optimizer="ConvexBezierSplineOptimizer">
+			<Verbose>false</Verbose>
+			<MaxDistancePenalty>30</MaxDistancePenalty>
+			<DistanceCost>true</DistanceCost>
+			<LengthCost>true</LengthCost>
+			<CurvatureConstraint>true</CurvatureConstraint>
+			<WeightLength>0.1</WeightLength>
+			<WeightObstacles>10</WeightObstacles>
+			<InitialTrustRegionSize>0.5</InitialTrustRegionSize>
+			<MaxTrustRegionSize>1.0</MaxTrustRegionSize>
+		</Parameters>
+	</OptimizerParameters>
+	<InterpolatorParameters>
+		<Parameters interpolator="Yang-Spiral-Interpolator">
+		</Parameters>
+	</InterpolatorParameters>
+</Mukno>
