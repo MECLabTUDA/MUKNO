@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<Mukno>
+	<Planners>
+		<Planner>Spline-Based-RRT-Connect</Planner>
+		<Planner>Bevel-Tip-RRT-Connect</Planner>
+	</Planners>
+	<Optimizers>
+		<Optimizer>BezierToCircularArcs</Optimizer>
+		<Optimizer>PrunerDummy</Optimizer>
+	</Optimizers>
+	<PlannerParameters>
+		<Parameters planner="Bevel-Tip-RRT-Connect">
+			<GoalBias>0.0</GoalBias>
+			<NearestBallRadius>1.0</NearestBallRadius>
+			<Calc-Time>2.5</Calc-Time>
+			<Step-Size>15</Step-Size>
+			<ConeLength>45.0</ConeLength>
+			<ConeRadius>5.0</ConeRadius>
+			<MaxChildren>10</MaxChildren>
+		</Parameters>
+		<Parameters planner="Spline-Based-RRT-Connect">
+			<GoalBias>0.0</GoalBias>
+			<NearestBallRadius>1.0</NearestBallRadius>
+			<Calc-Time>2.5</Calc-Time>
+			<Step-Size>15.0</Step-Size>
+			<ConeLength>45.0</ConeLength>
+			<ConeRadius>5.0</ConeRadius>
+			<MaxChildren>10</MaxChildren>
+		</Parameters>
+	</PlannerParameters>
+	<OptimizerParameters>
+		<Parameters optimizer="BezierToCircularArcs">
+		</Parameters>
+		<Parameters optimizer="PrunerDummy">
+		</Parameters>
+	</OptimizerParameters>
+	<InterpolatorParameters>
+		<Parameters interpolator="BezierToCircularArcs-I">
+		</Parameters>
+		<Parameters interpolator="Linear-Interpolator">
+		</Parameters>
+	</InterpolatorParameters>
+</Mukno>

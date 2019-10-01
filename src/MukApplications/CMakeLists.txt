@@ -6,3 +6,7 @@ option(MukUtilities_MICCAI2019 "Enable the experiment application for MICCAI 201
 if (${MukUtilities_MICCAI2019})
 	add_subdirectory(Conf_MICCAI2019)
 endif()
+option(MukUtilities_IROS2019 "Enable the experiment application for the RA-L paper 'Planning for Flexible Surgical Robots via Bézier Spline Translation Johannes'" OFF)
+if (${MukUtilities_IROS2019})
+	add_subdirectory(Conf_IROS2019)
+endif()

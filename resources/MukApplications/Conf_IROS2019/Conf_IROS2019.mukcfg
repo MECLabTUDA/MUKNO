@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<Mukno>
+	<Conf_IROS2019>
+		<SharedParameters>
+			<DataSets>../resources/MukApplications/Conf_IROS2019/DataSets.mukcfg</DataSets>
+		</SharedParameters>
+		<Experiments>
+			<SegThorExperiment>
+				<Compute>1</Compute>
+				<Directory_SegThor>D:/DataSets/SegThor_2019</Directory_SegThor>
+				<Evaluate>1</Evaluate>
+				<LabelExtractionAlgorithm>../resources/MukApplications/Conf_IROS2019\SegThor\LabelImageToPolyData.alg</LabelExtractionAlgorithm>
+				<LastEvaluationDate></LastEvaluationDate>
+				<OutputRootDir>../results/MukApplications/Conf_IROS2019</OutputRootDir>
+				<PrepareSegThorDataSet>1</PrepareSegThorDataSet>
+				<SkipPatientsEqual></SkipPatientsEqual>
+				<SkipPatientsHigher>-1</SkipPatientsHigher>
+				<SkipPatientsLesser>-1</SkipPatientsLesser>
+				<SkipPatientsUnequal></SkipPatientsUnequal>
+				<Subdir>SegThor</Subdir>
+				<CopyBaseScene>1</CopyBaseScene>
+				<ExtractSegThorDataSet>1</ExtractSegThorDataSet>
+				<PostProcessSegThorDataSet>1</PostProcessSegThorDataSet>
+				<PlannerConfigFile>../resources/MukApplications/Conf_IROS2019\SegThor\PlannerParameters.mukcfg</PlannerConfigFile>
+				<PlanningTime>5</PlanningTime>
+			</SegThorExperiment>
+		</Experiments>
+	</Conf_IROS2019>
+</Mukno>
