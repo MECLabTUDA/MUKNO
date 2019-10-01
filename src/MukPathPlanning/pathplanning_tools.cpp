@@ -42,13 +42,13 @@ namespace gris
       setPosition(mukState, state);
 
       const auto a = Eigen::Vector3d(0,0,1);
-      const auto b = Eigen::Vector3d(mukState.tangent.x(), mukState.tangent.y(), mukState.tangent.z());
+      const auto b = Eigen::Vector3d(mukState.tangent.data());
       auto  q = Eigen::Quaterniond::FromTwoVectors(a,b);
       auto& r = state.rotation();
+      r.w = q.w();
       r.x = q.x();
       r.y = q.y();
       r.z = q.z();
-      r.w = q.w();
     }
 
     /** \brief Converts a MukState to an ompl-SE3-state where the z-Axis is the direction
@@ -82,6 +82,14 @@ namespace gris
       dir = q.toRotationMatrix()*dir;
       dir.normalize();
       return MukState(pos, Vec3d(dir.data()));
+    }
+
+    /**
+    */
+    void fromOmplState(const og::MukStateType& state, Eigen::Vector3d& p, Eigen::Quaterniond& q)
+    {
+      fromOmplState(state, p);
+      fromOmplState(state, q);
     }
 
     /**
@@ -127,6 +135,22 @@ namespace gris
       for (size_t i(0); i<3; ++i)
         for (size_t j(0); j<3; ++j)
           M(i,j) = R(i,j);
+    }
+
+    /**
+    */
+    void toOmplState(og::MukStateType& state, const Eigen::Matrix4d& M)
+    {
+      state.setXYZ(M(0,3), M(1,3), M(2,3));
+      Eigen::Matrix3d R;
+      for(size_t i(0); i<3; ++i)
+        for(size_t j(0); j<3; ++j)
+          R(i,j) = M(i,j);
+      Eigen::Quaterniond q(R);
+      state.rotation().w = q.w();
+      state.rotation().x = q.x();
+      state.rotation().y = q.y();
+      state.rotation().z = q.z();
     }
 
     /**
@@ -207,8 +231,8 @@ namespace gris
     MukPath swapDirection(const MukPath& input)
     {
       MukPath result = input;
-      auto& in  = input.getPath();
-      auto& out = result.getPath();
+      auto& in  = input.getStates();
+      auto& out = result.getStates();
       const auto N = out.size();
       for (size_t i(0); i<N; ++i)
       {

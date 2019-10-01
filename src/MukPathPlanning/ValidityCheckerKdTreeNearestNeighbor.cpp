@@ -20,6 +20,7 @@ namespace gris
 			~Impl();
 
 			double mDistance;
+      double mClearance;
 		};
 
 		ValidityCheckerKdTreeNearestNeighbor::Impl::Impl()
@@ -67,11 +68,12 @@ namespace gris
 		*/
 		double ValidityCheckerKdTreeNearestNeighbor::clearance(const ompl::base::State* pState) const
 		{
-			const auto* state = pState->as<og::MukStateType>();
+      return mp->mClearance;
+			/*const auto* state = pState->as<og::MukStateType>();
 			auto p = Vec3d(state->getX(), state->getY(), state->getZ());
 			if (mpCollisionDetector->hasNeighbors(p, mp->mDistance))
 				return false;
-			return true;
+			return true;*/
 		}
 
 		/**
@@ -83,8 +85,14 @@ namespace gris
 			if (!mpBounds->isInside(p))
 				return false;
 
-			if (mpCollisionDetector->hasNeighbors(p, mp->mDistance))
-				return false;
+      Vec3d nn;
+      bool hasNeighbor = mpCollisionDetector->nearestNeighbor(p, nn);
+      if (hasNeighbor)
+      {
+        mp->mClearance = (nn - p).norm();
+        if (mp->mClearance < mp->mDistance)
+          return false;
+      }
 			return true;
 		}
 

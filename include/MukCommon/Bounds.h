@@ -32,7 +32,8 @@ namespace muk
       Vec3d        getMax() const { return mMax; }
 
     public:
-      void update(double* d);
+      void update(double d[6]);
+      void update(const Vec3d& p);
 
     private:
       Vec3d mMin;

@@ -32,6 +32,16 @@ namespace muk
 
   /**
   */
+  std::unique_ptr<IStateRegion> StateRegionSingleDirection::clone() const
+  {
+    auto pObj = std::make_unique<StateRegionSingleDirection>();
+    pObj->mPoints     = mPoints;
+    pObj->mDirection  = mDirection;
+    return std::move(pObj);
+  }
+
+  /**
+  */
   template<>
   void StateRegionSingleDirection::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive& ar, const unsigned version)
   {

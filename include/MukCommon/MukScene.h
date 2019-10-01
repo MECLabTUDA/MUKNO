@@ -25,7 +25,7 @@ namespace muk
   class MukObstacle;
   class ICollisionDetector;
   class IPathPlanner;
-  class IPathPruner;
+  class IPathOptimizer;
   class IInterpolator;
   class INavigator;  
 
@@ -46,13 +46,13 @@ namespace muk
       void                  setName(const std::string& name);
       const std::string&    getName()                         const { return mSceneName; }
       void                  setLocalBasePath(const std::string& basePath)                 { mLocalBasePath = basePath; }
-      const std::string&    getLoaclBasePath()                                    const   { return mLocalBasePath; }
+      const std::string&    getLocalBasePath()                                    const   { return mLocalBasePath; }
       const IPathPlanner*   getPlanner()                                          const   { return mpPlanner.get(); }
       IPathPlanner*         getPlanner()                                                  { return mpPlanner.get(); }
       void                  setPlanner(std::unique_ptr<IPathPlanner> pObj);
-      const IPathPruner*    getPruner()                                           const   { return mpPruner.get(); }
-      IPathPruner*          getPruner()                                                   { return mpPruner.get(); }
-      void                  setPruner(std::unique_ptr<IPathPruner> pObj);
+      const IPathOptimizer*    getPruner()                                           const   { return mpPruner.get(); }
+      IPathOptimizer*          getPruner()                                                   { return mpPruner.get(); }
+      void                  setPruner(std::unique_ptr<IPathOptimizer> pObj);
       const IInterpolator*  getInterpolator()                                     const   { return mpInterpolator.get(); }
       IInterpolator*        getInterpolator()                                             { return mpInterpolator.get(); }
       void                  setInterpolator(std::unique_ptr<IInterpolator> pObj)          { mpInterpolator = std::move(pObj); }
@@ -91,7 +91,7 @@ namespace muk
       std::shared_ptr<SystemCalibration>  mpSystemCalibration;
       std::shared_ptr<ICollisionDetector> mpCollisionDetector;
       std::unique_ptr<IPathPlanner>    mpPlanner;
-      std::unique_ptr<IPathPruner>     mpPruner;
+      std::unique_ptr<IPathOptimizer>     mpPruner;
       std::unique_ptr<IInterpolator>   mpInterpolator;
 
       // fix, for now just save the name!

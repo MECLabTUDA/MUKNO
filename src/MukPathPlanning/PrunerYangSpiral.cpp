@@ -3,7 +3,7 @@
 
 #include "MukCommon/MukException.h"
 #include "MukCommon/geometry.h"
-#include "MukCommon/PrunerFactory.h"
+#include "MukCommon/OptimizerFactory.h"
 
 #include <Eigen/Dense>
 
@@ -27,7 +27,7 @@ namespace gris
 {
   namespace muk
   {
-    REGISTER_PRUNER(PrunerYangSpiral);
+    REGISTER_OPTIMIZER(PrunerYangSpiral);
 
     /**
     */
@@ -56,16 +56,7 @@ namespace gris
 
     /**
     */
-    void PrunerYangSpiral::clone(const IPathPruner* pOther)
-    {
-      setKappa(pOther->getKappa());
-      setMaxDistance(pOther->getMaxDistance());
-      setMaxStepSize(pOther->getMaxStepSize());
-    }
-
-    /**
-    */
-    MukPath PrunerYangSpiral::calculate(const MukPath& input)
+    MukPath PrunerYangSpiral::calculate(const MukPath& input) const
     {
       if (nullptr == mpCollision.get())
       {
@@ -73,8 +64,8 @@ namespace gris
       }      
       MukPath output;
       output.setRadius(input.getRadius());
-      auto& dest      = output.getPath();
-      const auto& src = input.getPath();    
+      auto& dest      = output.getStates();
+      const auto& src = input.getStates();    
       dest.reserve(src.size());
 
       if (src.size() < 6) // 1 point in the middle needed at least

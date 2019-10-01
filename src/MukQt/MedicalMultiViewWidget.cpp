@@ -11,8 +11,8 @@
 #include "MukVisualization/ROISynchronizer.h"
 #include "MukVisualization/ROIWidget.h"
 
-#include "MukCommon/muk_common.h"
 #include "MukCommon/MukVector.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkCamera.h>
 #include <vtkRenderWindowInteractor.h>

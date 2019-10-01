@@ -83,7 +83,7 @@ namespace muk
   {
     mInterpolated = true;
     // for each two states: compute intersection of tangents, then create the splines if possible
-    const auto& states = mInput.getPath();
+    const auto& states = mInput.getStates();
     const size_t N = states.size()-1;
     mp->splines.resize(N);
     mp->splinesFlagsValid.resize(N);
@@ -101,8 +101,8 @@ namespace muk
   {
     IInterpolator::result_type result;
     result.setRadius(mInput.getRadius());
-    result.getPath().reserve( mInput.getPath().size() );
-    std::copy(mInput.getPath().begin(), mInput.getPath().end(), back_inserter(result.getPath()));
+    result.getStates().reserve( mInput.getStates().size() );
+    std::copy(mInput.getStates().begin(), mInput.getStates().end(), back_inserter(result.getStates()));
     return result;
   }
 
@@ -115,7 +115,7 @@ namespace muk
     {
       case controlPoints:
       {
-        std::transform(mInput.getPath().begin(), mInput.getPath().end(), back_inserter(points), [&] (const MukState& state) { return state.coords; });
+        std::transform(mInput.getStates().begin(), mInput.getStates().end(), back_inserter(points), [&] (const MukState& state) { return state.coords; });
         break;
       }
       case samples:
@@ -142,7 +142,7 @@ namespace muk
     IInterpolator::result_type result;
     result.setRadius(mInput.getRadius());
     const size_t N = points.size();    
-    auto& path     = result.getPath();
+    auto& path     = result.getStates();
     path.reserve(N);
     if (N >= 2)
     {  

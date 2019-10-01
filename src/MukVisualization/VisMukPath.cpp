@@ -4,7 +4,7 @@
 #include "PolyDataMapperHandler.h"
 #include "muk_colors.h"
 
-#include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
@@ -42,7 +42,7 @@ namespace gris
       , mPath(pPath)
       , mLineWidth(1.0)
     {
-      mTopology = lines;
+      mTopology = Lines;
       mDefaultColor = Vec3d(Colors::Green);
       setColors(mDefaultColor);
       declareProperty<EnTopology>("Topology"
@@ -82,7 +82,7 @@ namespace gris
     {
       auto data   = make_vtk<vtkPolyData>();
       auto points = make_vtk<vtkPoints>();
-      for(const auto& obj : path.getPath())
+      for(const auto& obj : path.getStates())
       {
         points->InsertNextPoint(obj.coords.x(), obj.coords.y(), obj.coords.z());
       }
@@ -134,7 +134,7 @@ namespace gris
       
       MukPath path;
       path.setRadius(mPath.getRadius());
-      path.setPath(states);
+      path.setStates(states);
       return path;
     }
 
@@ -168,13 +168,13 @@ namespace gris
       PolyDataHandler::clearTopology(mpData.Get());
       switch (mTopology)
       {
-        case vertices:
+        case Vertices:
         {
           PolyDataHandler::addVertices(mpData.Get());
           mpMapper->SetInputData(mpData);
           break;
         }
-        case lines:        
+        case Lines:        
         {
           PolyDataHandler::addLines(mpData.Get(), mLineWidth);
           mpMapper->SetInputData(mpData);
@@ -182,12 +182,12 @@ namespace gris
           mpActor->Modified();
           break;
         }
-        case tube:
+        case 
+          Tube:
         {
           PolyDataHandler::addLines(mpData.Get(), mLineWidth);
           mpMapper->SetInputData(mpData);
           PolyDataMapperHandler::addTube(mpMapper.Get(), mPath.getRadius(), 20);
-
           break;
         }
         default:

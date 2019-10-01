@@ -4,6 +4,9 @@
 #include "muk_common.h"
 #include "MukException.h"
 
+#include "MukImaging/MukImage.h"
+#include "MukImaging/muk_imaging_tools.h"
+
 #include <vtkGenericDataObjectReader.h>
 #include <vtkGenericDataObjectWriter.h>
 #include <vtkOBJReader.h>
@@ -69,31 +72,25 @@ namespace muk
   */
 	vtkSmartPointer<vtkPolyData> loadMhdFile(const std::string& filename)
 	{
-		vtkSmartPointer<vtkPolyData> output;
-
-		typedef unsigned short              PixelType;
-		typedef itk::Image<PixelType, 3>    Image;
-		typedef itk::ImageFileReader<Image> Reader;
-
 		namespace fs = boost::filesystem;
 		fs::path path = filename;
 		if (0 != path.extension().string().compare(".mhd"))
 		{
 			throw MUK_EXCEPTION_SIMPLE("Input-file does not have ending 'mhd'!\n");
 		}
+    
+    using Reader = itk::ImageFileReader<ImageInt3D>;
+    auto reader = make_itk<Reader>();
+    reader->SetFileName(path.string());
+    reader->Update();
 
-		Reader::Pointer reader = Reader::New();
-		reader->SetFileName(path.string());
-		reader->Update();
-
+    vtkSmartPointer<vtkPolyData> output;
 		// Use VTK's Marching Cube to extract iso-surface
     auto pCubes = make_vtk<vtkMarchingCubes>();
-		typedef itk::Image<unsigned short, 3> Image;
-		typedef itk::ImageToVTKImageFilter<Image> Filter;
-		Filter::Pointer pImg = Filter::New();
+    auto pImg = make_itk<itk::ImageToVTKImageFilter<ImageInt3D>>();
 		pImg->SetInput(reader->GetOutput());
 		pImg->Update();
-		vtkImageData* pImgData = pImg->GetOutput();
+		auto* pImgData = pImg->GetOutput();
 		pCubes->SetInputData(pImg->GetOutput());
 		pCubes->SetValue(0, 1);
 		pCubes->Update();
@@ -109,19 +106,16 @@ namespace muk
 			throw MUK_EXCEPTION_SIMPLE("Input-file does not have ending 'mhd'!\n");
 		}
 
-		typedef unsigned short              PixelType;
-		typedef itk::Image<PixelType, 3>    Image;
-		typedef itk::ImageFileReader<Image> Reader;
-
-		Reader::Pointer reader = Reader::New();
+		using Reader = itk::ImageFileReader<ImageInt3D> ;
+    auto reader = make_itk<Reader>();
 		reader->SetFileName(path.string());
 		reader->Update();
 
 		// compute maximum
-		typedef itk::Statistics::ImageToHistogramFilter<Image> HistFilter;
+		typedef itk::Statistics::ImageToHistogramFilter<ImageInt3D> HistFilter;
 		HistFilter::HistogramType::Pointer histogram;
 		{
-			HistFilter::Pointer histFilter = HistFilter::New();
+      auto histFilter = make_itk<HistFilter>();
 			histFilter->SetInput(reader->GetOutput());
 			const unsigned int MeasurementVectorSize = 1;   // Grayscale
 			const unsigned int binsPerDimension = 256; // number of bins
@@ -148,8 +142,7 @@ namespace muk
 			unsigned int value = histogram->GetFrequency(i);
 			if (value != 0)
 			{
-				typedef itk::ThresholdImageFilter<Image> ThresholdFilter;
-				ThresholdFilter::Pointer thresholdFilter = ThresholdFilter::New();
+        auto thresholdFilter = make_itk<itk::ThresholdImageFilter<ImageInt3D>>();
 				thresholdFilter->SetInput(reader->GetOutput());
 				thresholdFilter->ThresholdOutside(i, i);
 				thresholdFilter->SetOutsideValue(0);
@@ -157,9 +150,8 @@ namespace muk
 
 				// Use VTK's Marching Cube to extract iso-surface
 				// note that this algo isn implemented in ITK
-				vtkSmartPointer<vtkMarchingCubes> pCubes = vtkSmartPointer<vtkMarchingCubes>::New();
-				typedef itk::ImageToVTKImageFilter<Image> ToVtkFilter;
-				ToVtkFilter::Pointer vtkFilter = ToVtkFilter::New();
+        auto pCubes = make_vtk<vtkMarchingCubes>();
+        auto vtkFilter = make_itk<itk::ImageToVTKImageFilter<ImageInt3D>>();
 				vtkFilter->SetInput(thresholdFilter->GetOutput());
 				vtkFilter->Update();
 				pCubes->SetInputData(vtkFilter->GetOutput());
@@ -284,7 +276,7 @@ namespace muk
 		auto fn = boost::filesystem::path(filename);
 		std::ofstream ofs(fn.string());
 		ofs << p.getRadius() << std::endl;
-		for (const auto& state : p.getPath())
+			for (const auto& state : p.getStates())
 		{
 			ofs << state.coords << " " << state.tangent << std::endl;
 		}
@@ -331,7 +323,7 @@ namespace muk
 			states.push_back(next);
 		}
     LOG_LINE << "size " << states.size();
-		path.setPath(states);
+			path.setStates(states);
 		return path;
 	}
 
@@ -396,7 +388,7 @@ namespace muk
     pWriter->Write();
 	}
 
-	/** \brief loads an .off-file (corresnpondence file of the pdmlib. 
+	/** \brief loads an .off-file (corresnpondence file of the pdmlib.)
       
     Does not check for file existence!
     Will throw if ifstream fails somewhere during reading

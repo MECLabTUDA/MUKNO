@@ -2,8 +2,8 @@
 #include "MukObstacle.h"
 #include "mukIO.h"
 #include "MukException.h"
+#include "vtk_tools.h"
 
-#include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
 
 #include <boost/filesystem.hpp>

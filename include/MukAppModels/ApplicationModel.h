@@ -9,10 +9,12 @@
 #include "MukCommon/MukException.h"
 #include "MukCommon/ICollisionDetector.h"
 #include "MukCommon/IPathPlanner.h"
-#include "MukCommon/IPathPruner.h"
+#include "MukCommon/IPathOptimizer.h"
 #include "MukCommon/IInterpolator.h"
 #include "MukCommon/INavigationContainer.h"
 #include "MukCommon/SystemCalibration.h"
+
+#include "MukImaging/MukImage.h"
 
 #include "gstd/logger.h"
 
@@ -65,7 +67,7 @@ namespace gris
         void deleteObstacle(const std::string& name);
 
       public:
-        void setCtData(itk::Image<unsigned short, 3>::Pointer pData) { mpCtData = pData; }
+        void setCtData(ImageInt3D::Pointer pData) { mpCtData = pData; }
 
         void setExecutableDir(const std::string& str);
         const std::string& getExecutableDir() const;
@@ -76,8 +78,8 @@ namespace gris
         // Data
         std::shared_ptr<MukScene> mpScene;
 
-	      itk::Image<unsigned short, 3>::Pointer mpCtData;
-	      std::shared_ptr<std::map<int, itk::Image<unsigned short, 3>::Pointer>> mpSegmentationData;
+        ImageInt3D::Pointer mpCtData;
+	      std::shared_ptr<std::map<int, ImageInt3D::Pointer>> mpSegmentationData;
 
         std::string mExecutableDir;
         std::string mWorkingDir;

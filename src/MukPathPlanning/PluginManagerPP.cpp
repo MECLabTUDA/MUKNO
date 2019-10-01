@@ -1,7 +1,7 @@
 #include "private/muk.pch"
 #include "PluginManagerPP.h"
 #include "MukCommon/PlannerFactory.h"
-#include "MukCommon/PrunerFactory.h"
+#include "MukCommon/OptimizerFactory.h"
 #include "MukCommon/InterpolatorFactory.h"
 
 namespace gris
@@ -12,7 +12,7 @@ namespace gris
     {
       GetPlannerFactory();
       GetInterpolatorFactory();
-      GetPrunerFactory();
+      GetOptimizerFactory();
     }
   }
 }

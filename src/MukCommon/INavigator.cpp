@@ -291,14 +291,14 @@ namespace gris
     {
       mPath = mpInterpolator->getInterpolation();
       mDistanceMap.clear();
-      if (mPath.getPath().size() == 0)
+      if (mPath.getStates().size() == 0)
         return;
-      auto it = mPath.getPath().cbegin();
+      auto it = mPath.getStates().cbegin();
       const Vec3d* lastPosition = &it->coords;
       double t = 0.0;
       mDistanceMap.emplace(t, *it);
       ++it;
-      for (; it != mPath.getPath().end(); ++it)
+      for (; it != mPath.getStates().end(); ++it)
       {
         mDistanceMap.emplace_hint(
           mDistanceMap.end(), // hint

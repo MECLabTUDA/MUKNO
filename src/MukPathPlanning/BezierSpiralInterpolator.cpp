@@ -1,5 +1,5 @@
 #include "private/muk.pch"
-#include "private/BezierSpiralInterpolator.h"
+#include "BezierSpiralInterpolator.h"
 #include "BezierSpline.h"
 
 #include "MukCommon/geometry.h"
@@ -14,7 +14,14 @@ namespace
   using namespace Eigen;
   using namespace gris::muk;
   using gris::Vec3d;
-  using gris::M_PI;
+  using gris::M_Pi;
+
+  double wideAngle(const Vec3d& v, const Vec3d& w)
+  {
+    auto T1 = v.normalized();
+    auto T2 = w.normalized();
+    return std::atan2(T1.cross(T2).norm(), T1.dot(T2));
+  }
 
   template<typename MATRIX, typename VECTOR, size_t DIM>
   inline void fill_column(MATRIX& dest, size_t idx, const VECTOR& src)
@@ -106,16 +113,21 @@ namespace muk
   */
   double BezierSpiralInterpolator::fromKappaAndGamma(double kappa, double gamma)
   {
-    const double cosBeta = cos(gamma / 2.0);
-    return C4 * sin(gamma/2.0) / (kappa * cosBeta * cosBeta);
+    const auto beta = gamma / 2.0;
+    const double cosBeta = cos(beta);
+    const double sinBeta = sin(beta);
+    return C4 * sinBeta/ (kappa * cosBeta * cosBeta);
   }
 
-  /** \brief Should computes Gamma, which is not possible
+  /** \brief computes Gamma
     see equation (4) in 
   */
   double BezierSpiralInterpolator::fromKappaAndMinLength(double kappa, double minLength)
   {
-    throw MUK_EXCEPTION("calculation not possible", "no analytic solution available");
+    double q = minLength / C4 * kappa;
+    double root = std::sqrt(1 / (q*q) + 4);
+    double bigroot = std::sqrt(1 / (q*q) + 4/(q*root) + 1/ (q*q*q*root));
+    return 4 * std::atan(0.5* root - bigroot / std::sqrt(2) + 0.5 / q);
   }
 
   /** \brief computes Kappa
@@ -129,9 +141,30 @@ namespace muk
 
   /**
   */
+  void BezierSpiralInterpolator::approximateStepSize(double eps, double minGamma, double maxGamma, double stepSize, gris::muk::BezierSpiralInterpolator& spiralBuilder)
+  {
+    double length = spiralBuilder.getMinLength();
+    double gamma  = spiralBuilder.getGamma();
+    if ( abs(length-stepSize) > eps)
+    {
+      spiralBuilder.setGamma( 0.5*(minGamma + maxGamma) );
+      if (length > stepSize)
+      {
+        maxGamma = gamma;
+      }
+      else
+      {
+        minGamma = gamma;
+      }
+      approximateStepSize(eps, minGamma, maxGamma, stepSize, spiralBuilder);
+    }
+  }
+
+  /**
+  */
   BezierSpiralInterpolator::BezierSpiralInterpolator()
     : mKappa(0.1)
-    , mGamma(M_PI_2)
+    , mGamma(M_Pi_2)
   {
     mMinLength = fromKappaAndGamma(mKappa, mGamma);
   }
@@ -141,7 +174,6 @@ namespace muk
   void BezierSpiralInterpolator::setGamma(double val)
   {
     mGamma = val;
-    mMinLength = fromKappaAndGamma(mKappa, mGamma);
   }
 
   /** \brief computes if input is valid for internal values of kappa, gamma and minLength
@@ -165,15 +197,15 @@ namespace muk
     return true;
   }
 
-  /** \brief creates a spline connecting the points 1/2*(W1 + W2) and 1/2*(W2 + W3) via twi Bezier Spirals
+  /** \brief creates a spline connecting the points 1/2*(W1 + W2) and 1/2*(W2 + W3) via two Bezier Spirals
   */
-  bool BezierSpiralInterpolator::interpolate(const Eigen::Vector3d& W1, const Eigen::Vector3d& W2, const Eigen::Vector3d& W3, BezierSpline& spline) const
+  bool BezierSpiralInterpolator::interpolate(const Vec3d& W1, const Vec3d& W2, const Vec3d& W3, BezierSpline& spline) const
   {
     bool interpolationValid = false;
     using namespace Eigen;
-    Vector3d        P_1 = W1;
-    const Vector3d& P_2 = W2;
-    Vector3d        P_3 = W3;
+    auto       P_1 = Vector3d(W1.data());
+    const auto P_2 = Vector3d(W2.data());
+    auto       P_3 = Vector3d(W3.data());
 
     // adjust points to smaller path    
     Vector3d u_t = (P_2-P_1); // unit tangent from W1 to W2, equation (17)    
@@ -270,20 +302,136 @@ namespace muk
     return interpolationValid;
   }
   
-  /** \brief creates a spline connecting the points 1/2*(W1 + W2) and 1/2*(W2 + W3) via two Bezier Spirals
-    
-    convenience function
-  */
-  bool BezierSpiralInterpolator::interpolate(const Vec3d& W1, const Vec3d& W2, const Vec3d& W3, BezierSpline& spline) const
-  {
-    using namespace Eigen;
-    Vector3d P_1 = Vector3d(W1.data());
-    Vector3d P_2 = Vector3d(W2.data());
-    Vector3d P_3 = Vector3d(W3.data());
+  ///** \brief creates a spline connecting the points 1/2*(W1 + W2) and 1/2*(W2 + W3) via two Bezier Spirals
+  //  
+  //  convenience function
+  //*/
+  //bool BezierSpiralInterpolator::interpolate(const Vec3d& W1, const Vec3d& W2, const Vec3d& W3, BezierSpline& spline) const
+  //{
+  //  using namespace Eigen;
+  //  Vector3d P_1 = Vector3d(W1.data());
+  //  Vector3d P_2 = Vector3d(W2.data());
+  //  Vector3d P_3 = Vector3d(W3.data());
+  //  return this->interpolate(P_1, P_2, P_3,  spline);
+  //}
 
-    return this->interpolate(P_1, P_2, P_3,  spline);
+  /** \brief Creates a Bézier Spline that interpolates between B0 and E0.
+
+    see further: Yang et al: Spline-Based RRT Path Planner for Nonholonomic Robots
+  */
+  BezierSpline BezierSpiralInterpolator::createFromEndpoints(const Vec3d& B0, const Vec3d& W2, const Vec3d E0)
+  {
+    BezierSpline spline;
+    using namespace Eigen;
+    // gris Vector class doesn't support matrix operations -> convert to eigen
+    auto P_1        = Vector3d(B0.data());
+    const auto P_2  = Vector3d(W2.data());
+    auto P_3        = Vector3d(E0.data());
+    // adjust points to smaller path
+    Vector3d u_t = (P_2-P_1); // unit tangent from B0 to W2, equation (17)    
+    Vector3d u_p = (P_2-P_3); // unit tangent from E0 to W2, eq. (19)
+    const double length_u_t = u_t.norm();
+    const double length_u_p = u_p.norm();
+    u_t.normalize();
+    u_p.normalize();
+    if (length_u_t < length_u_p) // change length P2 to P3
+      P_3 = P_2 - length_u_t*u_p;
+    else // change length P1 to P2
+      P_1 = P_2 - length_u_p*u_t;
+
+    // ---- construction of orthonormal Vectors ----    
+    // binormal vector of P1P2P3-plane, eq. (18)
+    Vector3d u_b = u_t.cross(u_p);
+    if (u_b.isZero()) // the three points form a line
+    {
+      spline.samples[0] = B0;
+      spline.samples[3] = W2;
+      spline.samples[6] = E0;
+      const double db = (P_2-P_1).norm();
+      spline.samples[1] = Convert()(P_1 + db / 3.0 * u_t);
+      spline.samples[2] = Convert()(P_1 + 2 * db / 3.0 * u_t);
+      const double de = (P_3-P_2).norm();
+      spline.samples[4] = Convert()(P_2 - de / 3.0 * u_p);
+      spline.samples[5] = Convert()(P_2 - 2 * de / 3.0 * u_p);
+      return spline;
+    }
+
+    // unit normal vector, eq. (20)
+    u_b.normalize();
+    Vector3d u_n = u_b.cross(u_t);
+    u_n.normalize();
+    // ---- Mapping 3D Waypoints to 2D ----
+    // transformation Matrix, eq. (21)
+    Matrix4d TM = createTrafoMatrix(u_t, u_n, u_b, P_1);
+    Matrix4d TMI = TM.inverse();
+
+    // Applying 2D Bezier interpolation
+    const Vector2d P_b = project_3d_2d(TMI, P_1);
+    const Vector2d P_e = project_3d_2d(TMI, P_3);
+    const Vector2d P_x = project_3d_2d(TMI, P_2);
+
+    Vector2d T_b = P_x - P_b;
+    Vector2d T_e = P_e - P_x;
+    const double d = T_b.norm(); // always 0.5
+    T_b.normalize();
+    T_e.normalize();
+
+    const double alpha = computeAlpha(P_x, P_e);
+    const double phi = alpha / 2.0;
+    const double sphi = sin(phi);
+    const double cphi = cos(phi);
+    const double h_b  = 0.346 * d;          // eq. 16
+    const double g_b  = 0.58  * h_b;        // eq. 16
+    const double k_b  = 1.31  * h_b * cphi; // eq. 16
+
+    // compute Points    
+    const Vector2d& B0_2D = P_b;
+    const Vector2d& E0_2D = P_e;
+    Vector2d  B1, B2, B3, E1, E2;
+    B1 = B0_2D + g_b * T_b;
+    B2 = B1 + h_b * T_b;
+    E1 = E0_2D - g_b * T_e;
+    E2 = E1 - h_b * T_e;
+    Vector2d u_d = E2 - B2;
+    u_d.normalize();
+    B3 = B2 + k_b * u_d;
+
+    // Reprojection to 3D
+    MatrixXd S2D = createTrafoMatrix(B0_2D, B1, B2, B3, E2, E1, E0_2D);
+    MatrixXd S3D = TM * S2D;
+
+    for (size_t i(0); i < 7; ++i)
+      spline.samples[i] = Vec3d(S3D(0, i), S3D(1, i), S3D(2, i));
+    return spline;
   }
 
-    
+  /** \brief Creates a Bézier Spline that starts at 0.5*(W1+W2) and ends at 0.5*(W2+W3), point at start in (W2-W1) and at end in (W3-W2).
+  */
+  BezierSpline BezierSpiralInterpolator::createFromWaypoints(const Vec3d& W1, const Vec3d& W2, const Vec3d W3)
+  {
+    const auto B0 = 0.5*(W1 + W2);
+    const auto E0 = 0.5*(W2 + W3);
+    return createFromEndpoints(B0, W2, E0);
+  }
+
+  /**
+  */
+  double BezierSpiralInterpolator::computeKappaMax(const Vec3d& W1, const Vec3d& W2, const Vec3d& W3) const
+  {
+    const auto B0 = 0.5*(W1 + W2);
+    const auto E0 = 0.5*(W2 + W3);
+    const auto v1  = (W2 - W1).normalized();
+    const auto v2  = (W3 - W2).normalized();
+    const auto dot = v1.dot(v2);
+    const auto angle = std::acos(std::max(-1.0,std::min(1.0,std::abs(dot))));
+    const auto gamma = dot > 0 ? angle : M_Pi - angle;
+    const auto beta  = gamma / 2.0;
+    const auto dist1 = (W2 - B0).squaredNorm();
+    const auto dist2 = (W2 - E0).squaredNorm();
+    const auto d = dist1 < dist2 ? std::sqrt(dist1) : std::sqrt(dist2);
+    const auto cbeta = std::cos(beta);
+    const auto kappa = std::abs(gamma) < 1e-5 ? 0.0 : C4*std::sin(beta) / (d*cbeta*cbeta);
+    return kappa;
+  }
 }
 }

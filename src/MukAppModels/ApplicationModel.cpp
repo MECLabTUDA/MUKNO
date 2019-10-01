@@ -1,8 +1,10 @@
 #include "private/muk.pch"
 #include "ApplicationModel.h"
+//#include "CtVisModel.h"
 #include "PlanningModel.h"
-#include "VisualizationModel.h"
+#include "MukAppModels/VisualizationModel.h"
 #include "LocalEnvironment.h"
+//#include "NavigationThread.h"
 
 #include "MukCommon/MukException.h"
 #include "MukCommon/MukScene.h"
@@ -13,7 +15,7 @@
 #include "MukCommon/geometry.h"
 #include "MukCommon/PlannerFactory.h"
 #include "MukCommon/InterpolatorFactory.h"
-#include "MukCommon/PrunerFactory.h"
+#include "MukCommon/OptimizerFactory.h"
 #include "MukCommon/CollisionDetectorKdTree.h"
 #include "MukCommon/MukStringToolkit.h"
 #include "MukCommon/PathCollection.h"
@@ -27,10 +29,10 @@
 #include "MukVisualization/VisScene.h"
 
 
-//#include "MukQt/MukQToolBar.h"
-//#include "MukQt/MukQMenuBar.h"
-//#include "MukQt/TabPlanning.h"
-//#include "MukQt/muk_qt_tools.h"
+#include "MukQt/MukQToolBar.h"
+#include "MukQt/MukQMenuBar.h"
+#include "MukQt/TabPlanning.h"
+#include "MukQt/muk_qt_tools.h"
 
 #include "gstd/XmlDocument.h"
 #include "gstd/XmlNode.h"
@@ -223,7 +225,7 @@ namespace gris
       auto path = mpModels->pVisModel->getVisScene()->getPathCollection(key)->getMukPath(idx)->asMukPath();
 			ofstream ofs(filename);
       ofs << path.getRadius() << endl;
-      for (const auto& state : path.getPath())
+      for (const auto& state : path.getStates())
       {
         ofs << state.coords << " " << state.tangent << endl;
       }

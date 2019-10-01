@@ -75,6 +75,11 @@ set(ITK_DIR "${SDK_BASEPATH}/InsightToolkit-${ITK_Required_Version}/lib/cmake/IT
 #  set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${ITK_DIR})
 #endif()
 
+# QCUSTOMPLOT
+set(QCUSTOMPLOT_INCLUDE_DIR "${SDK_BASEPATH}/qcustomplot-1.3.2/include/" CACHE PATH "specifies the qcustomplot include directory")
+set(QCUSTOMPLOT_LIB_DIR "${SDK_BASEPATH}/qcustomplot-1.3.2/lib/" CACHE PATH "specifies the qcustomplot library directory")
+set(QCUSTOMPLOT_BIN_DIR "${SDK_BASEPATH}/qcustomplot-1.3.2/bin/" CACHE PATH "specifies the qcustomplot binary directory")
+
 # CGAL
 set(CGAL_DIR "${SDK_BASEPATH}/CGAL-4.7/lib/CGAL/" CACHE PATH "specifies the CGAL cmake directory")
 find_package(CGAL REQUIRED)

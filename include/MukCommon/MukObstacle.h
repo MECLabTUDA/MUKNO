@@ -1,7 +1,5 @@
 #pragma once
-
 #include "muk_common_api.h"
-#include "muk_common.h"
 
 #include "gstd/dynamicProperty.h"
 
@@ -14,7 +12,11 @@ namespace gris
 {
   namespace muk
   {
-
+    /** \brief A first representation of an obstacle. 
+    
+      Features data (as vtkPolyData, so it can be used for visualization as well), a unique identifer name and information if it is active for collision checking.
+      Should probably be refactored.
+    */
     class MUK_COMMON_API MukObstacle : public gstd::DynamicProperty
     {
       public:

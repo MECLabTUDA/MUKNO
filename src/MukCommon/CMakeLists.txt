@@ -11,6 +11,8 @@ set(Includes
 	${INC_DIR}geometry.h
 	${INC_DIR}gris_math.h
 	${INC_DIR}gris_property_streams.h
+	${INC_DIR}gris_property_tools.h
+	${INC_DIR}Matrix.h
 	${INC_DIR}MukItkIO.h
 	${INC_DIR}MukItkIO.h
 	${INC_DIR}IAbstractFactory.h
@@ -22,12 +24,15 @@ set(Includes
 	${INC_DIR}INavigationContainer.h
 	${INC_DIR}INavigationSupervisor.h
 	${INC_DIR}InterpolatorFactory.h
+	${INC_DIR}IPathOptimizer.h
 	${INC_DIR}IPathPlanner.h
-	${INC_DIR}IPathPruner.h
-	${INC_DIR}LoggerWrapper.h
 	${INC_DIR}IStateRegion.h
+	${INC_DIR}LoggerWrapper.h
+	${INC_DIR}LieGroupSE3.h
+	${INC_DIR}LocaleBool.h
 	${INC_DIR}muk_common_api.h
 	${INC_DIR}muk_common.h	
+	${INC_DIR}muk_dynamic_property_tools.h
 	${INC_DIR}muk_eigen_helper.h
 	${INC_DIR}MukException.h
 	${INC_DIR}MukIO.h
@@ -46,20 +51,27 @@ set(Includes
 	${INC_DIR}NavigatorFactory.h
 	${INC_DIR}NewtonRaphsonMethod.h
 	${INC_DIR}NewtonRaphsonMethod.hxx
+	${INC_DIR}OptimizerFactory.h
 	${INC_DIR}overload_deduction.h
 	${INC_DIR}PathCollection.h
 	${INC_DIR}PlannerFactory.h
 	${INC_DIR}PlaneStateRegion.h
 	${INC_DIR}polygon_3d_tools.h
-	${INC_DIR}PrunerFactory.h
+	${INC_DIR}PoseMatrix.h
+	${INC_DIR}PoseVector.h
+	${INC_DIR}Quaternion.h
 	${INC_DIR}StateRegionFactory.h
 	${INC_DIR}StateRegionSingleDirection.h
 	${INC_DIR}StateSamplerData.h
+	${INC_DIR}StaticMatrix.h
 	${INC_DIR}StreamReader.h
 	${INC_DIR}SurfaceStateRegion.h
 	${INC_DIR}SystemCalibration.h
     ${INC_DIR}TimerOwner.h
+	${INC_DIR}TwistMatrix.h
+	${INC_DIR}TwistVector.h
 	${INC_DIR}version.h
+	${INC_DIR}vtk_tools.h
 	${INC_DIR}Waypoints.h
 	${INC_DIR}Typedefs.h
 	)
@@ -82,11 +94,13 @@ set(Sources
 	IMukEvaluation.cpp	
 #  INavigationSupervisor.cpp
 	INavigator.cpp
-	InterpolatorFactory.cpp		
+	InterpolatorFactory.cpp
+	IPathOptimizer.cpp
 	IPathPlanner.cpp
-	IPathPruner.cpp
-	LoggerWrapper.cpp
 	IStateRegion.cpp
+	LocaleBool.cpp
+	LoggerWrapper.cpp
+	LieGroupSE3.cpp
 	MukException.cpp
 	MukIO.cpp
 	MukItkIO.cpp
@@ -102,11 +116,14 @@ set(Sources
     MukTransform.cpp
 	MultiPortStateRegion.cpp
 	NavigatorFactory.cpp
+	OptimizerFactory.cpp
 	PathCollection.cpp	
 	PlannerFactory.cpp
 	PlaneStateRegion.cpp
 	polygon_3d_tools.cpp
-	PrunerFactory.cpp
+	PoseMatrix.cpp
+	PoseVector.cpp
+	Quaternion.cpp
 	StateRegionFactory.cpp
 	StateRegionSingleDirection.cpp
 	StateSamplerData.cpp
@@ -114,6 +131,8 @@ set(Sources
 	SurfaceStateRegion.cpp
 	SystemCalibration.cpp
     TimerOwner.cpp
+	TwistMatrix.cpp
+	TwistVector.cpp
 	version.cpp
 	Waypoints.cpp
 	)

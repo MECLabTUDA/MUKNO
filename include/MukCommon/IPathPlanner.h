@@ -39,6 +39,8 @@ namespace muk
       virtual const char* name() const = 0;
       
     public:
+      void                    setVerbose(bool val)                      { mVerbose = val; }
+      bool                    getVerbose()                      const   { return mVerbose; }
       virtual void            setStepSize(double val)                   { mStepSize = val; }
       virtual double          getStepSize()                     const   { return mStepSize; }
       void                    setCalculationTime(double val)            { mCalculationTime = val;  }
@@ -62,11 +64,12 @@ namespace muk
       
     public:
       virtual MukPath        extractPath(size_t idx=0) const = 0;
-      virtual MukPathGraph   extractRoadmap()       const = 0;
+      virtual MukPathGraph   extractRoadmap()          const = 0;
 
     protected:
       double    mCalculationTime; // seconds
       double    mStepSize;
+      bool      mVerbose;
 
       std::shared_ptr<ICollisionDetector> mpCollisionDetector;
       std::weak_ptr<MukProblemDefinition> mpProbDef;

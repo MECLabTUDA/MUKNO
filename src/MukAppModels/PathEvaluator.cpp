@@ -76,12 +76,12 @@ namespace gris
       return score / weightingSumm;
     }
 
-    /** determines the minimum distance of a path to every (active) obstacle
+    /** \brief determines the minimum distance of a path to every (active) obstacle
     */
     std::vector<std::vector<double>> PathEvaluator::minDistToEachObst(VisPathCollection& paths, const std::vector<size_t> filteredPaths)
     {
       // filler for parallel for
-      std::vector<double> obstacleFiller(mpActiveObstacles.size(), 999);
+      std::vector<double> obstacleFiller(mpActiveObstacles.size(), 999); // TODO, oh man -.-
       auto minDistToEachObst = std::vector<std::vector<double>>(paths.numberOfPaths(), obstacleFiller);
       std::vector<double> statefiller;
       for (size_t o(0); o < mpActiveObstacles.size(); o++) // for every active Obstacle
@@ -102,7 +102,52 @@ namespace gris
           {
             if (std::find(filteredPaths.begin(), filteredPaths.end(), p) != filteredPaths.end()) // of the filtered paths
             {
-              pathDistanceToOneObstacle[p] = computeDistances(*mpCollDet, paths.getMukPath(p)->asMukPath().getPath(), paths.getMukPath(p)->asMukPath().getRadius());
+              const auto path = paths.getMukPath(p)->asMukPath();
+              pathDistanceToOneObstacle[p] = computeDistances(*mpCollDet, path.getStates(), path.getRadius());
+              // only save the minimum since thats enough for computation and weighing
+              minDistToEachObst[p][o] = *std::min_element(pathDistanceToOneObstacle[p].begin(), pathDistanceToOneObstacle[p].end());
+            }
+          }
+        }
+      }
+      // rebuild the original tree
+      for (auto key : mpActiveObstacles)
+      {
+        mpCollDet->setActive(key, true);
+      }
+      mpCollDet->rebuild();
+      return minDistToEachObst;
+    }
+
+    /** \brief same as above, but without dependency to Visualization
+    */
+    std::vector<std::vector<double>> PathEvaluator::minDistToEachObst(std::vector<MukPath>& inputPaths, const std::vector<size_t> filteredPaths)
+    {
+      // filler for parallel for
+      std::vector<double> obstacleFiller(mpActiveObstacles.size(), std::numeric_limits<double>::max());
+      const auto N_Input = inputPaths.size();
+      auto minDistToEachObst = std::vector<std::vector<double>>(N_Input, obstacleFiller);
+      std::vector<double> statefiller;
+      for (size_t o(0); o < mpActiveObstacles.size(); ++o) // for every active Obstacle
+      {
+        if (mpObstacleWeightings[o] > 0) // that has a weighting greater 0
+        {
+          for (size_t o2(0); o2 < mpActiveObstacles.size(); o2++) // set all other obstacle inactive
+          {
+            if (o == o2)
+              mpCollDet->setActive(mpActiveObstacles[o2], true);
+            else
+              mpCollDet->setActive(mpActiveObstacles[o2], false);
+          }
+          mpCollDet->rebuild(); // rebuild the collision tree
+          std::vector<std::vector<double>> pathDistanceToOneObstacle(N_Input, statefiller);
+#pragma omp parallel for
+          for (int p(0); p < (int)N_Input; ++p) // determine the distance of that obstacle to every path
+          {
+            if (std::find(filteredPaths.begin(), filteredPaths.end(), p) != filteredPaths.end()) // of the filtered paths
+            {
+              const auto path = inputPaths[p];
+              pathDistanceToOneObstacle[p] = computeDistances(*mpCollDet, path.getStates(), path.getRadius());
               // only save the minimum since thats enough for computation and weighing
               minDistToEachObst[p][o] = *std::min_element(pathDistanceToOneObstacle[p].begin(), pathDistanceToOneObstacle[p].end());
             }
@@ -143,10 +188,10 @@ namespace gris
     */
     double PathEvaluator::pathStraightness(const std::vector<MukState>& path) const
     {
-      std::vector<double> Curvatures = computeCurvatures(path);
+      std::vector<double> curvatures = computeCurvatures(path);
       double curvaturesCounter(0);
-      for (size_t i(0); i < Curvatures.size(); ++i)
-        curvaturesCounter += Curvatures[i];
+      for (size_t i(0); i < curvatures.size(); ++i)
+        curvaturesCounter += curvatures[i];
       return curvaturesCounter;
     }
 
@@ -168,7 +213,7 @@ namespace gris
           idx = i;
         }
       }
-      return wideAngle(goalStates[idx].tangent, pathEndState.tangent) * 360 / M_PI;
+      return wideAngle(goalStates[idx].tangent, pathEndState.tangent) * 360 / M_Pi;
     }
 
     /**

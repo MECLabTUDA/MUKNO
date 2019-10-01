@@ -8,7 +8,7 @@
 #include "MukCommon/mukIO.h"
 #include "MukCommon/MukStringToolkit.h"
 #include "MukCommon/PlannerFactory.h"
-#include "MukCommon/PrunerFactory.h"
+#include "MukCommon/OptimizerFactory.h"
 #include "MukCommon/InterpolatorFactory.h"
 #include "MukCommon/PathCollection.h"
 #include "MukCommon/MukPathGraph.h"
@@ -19,8 +19,16 @@
 #include "MukVisualization/VisPathCollection.h"
 #include "MukVisualization/VisObstacle.h"
 
+#include "MukQt/MukQMenuBar.h"
+#include "MukQt/MukQToolBar.h"
+#include "MukQt/TabPlanning.h"
+#include "MukQt/SceneWidget.h"
+#include "MukQt/MuknoPlannerMainWindow.h"
+
 #include "gstd/XmlDocument.h"
 #include "gstd/XmlNode.h"
+
+#include <vtkPolyData.h>
 
 #include "boost/filesystem.hpp"
 #include <boost/format.hpp>
@@ -70,7 +78,7 @@ namespace muk
   */
   void PlanningModel::setPruner(const std::string& name)
   {
-    std::unique_ptr<IPathPruner> newPruner = GetPrunerFactory().create(name);
+    std::unique_ptr<IPathOptimizer> newPruner = GetOptimizerFactory().create(name);
     newPruner->clone(mpScene->getPruner());
     mpScene->setPruner(std::move(newPruner));
   }
@@ -89,8 +97,9 @@ namespace muk
   void PlanningModel::createPaths(const std::string& name, size_t numNewPaths)
   {
     auto& coll = mpScene->getPathCollection(name);
-    auto* pPlanner       = mpScene->getPlanner();
-    auto* pPruner        = mpScene->getPruner();
+    const auto N_old = coll.getPaths().size();
+    auto* pPlanner   = mpScene->getPlanner();
+    auto* pPruner    = mpScene->getPruner();
     // quick fix for introduction of new Linear Planner, have to change the procedure from numNewPaths to max number of calls
     size_t count(0);
     for (size_t i(0); i<numNewPaths && count <= numNewPaths; ++i)
@@ -109,6 +118,8 @@ namespace muk
         }
       }
     }
+    const size_t N_newPaths = coll.getPaths().size() - N_old;
+    LOG_LINE << name << ": created " << N_newPaths << " out of " << numNewPaths << " requested new paths. Total number of paths: " << N_old + N_newPaths << ".";
   }
 
   /** \brief Reconfigures the Planning Model and tries to computes as many paths as possible in the available time
@@ -123,8 +134,9 @@ namespace muk
   void PlanningModel::createPaths(const std::string& name, double timeAvailable)
   {
     auto& coll = mpScene->getPathCollection(name);
-    auto* pPlanner       = mpScene->getPlanner();
-    auto* pPruner        = mpScene->getPruner();
+    const auto N_old = coll.getPaths().size();
+    auto* pPlanner   = mpScene->getPlanner();
+    auto* pPruner    = mpScene->getPruner();
     using namespace std::chrono;
     auto maxTime = 1000*timeAvailable; // milliseconds cast
     long timeSpend(0);
@@ -140,11 +152,16 @@ namespace muk
         for (size_t i(0); i<N; ++i)
         {
           auto path = pPlanner->extractPath(i);
+          auto start   = high_resolution_clock::now();
           auto prunedPath = pPruner->calculate(path);
-          coll.insertPath(prunedPath);
+          timeSpend += std::max(1ll,duration_cast<milliseconds>(high_resolution_clock::now() - start).count());
+          if ( ! prunedPath.getStates().empty())
+            coll.insertPath(prunedPath);
         }
       }
     }
+    const size_t N_newPaths = coll.getPaths().size() - N_old;
+    LOG_LINE << name << ": created " << N_newPaths << " new paths during " << timeAvailable << " seconds. Total number of paths: " << N_old + N_newPaths << ".";
   }
 
   /** \brief Tries to update a specific path of a given PathCollection 
@@ -181,6 +198,24 @@ namespace muk
     }
   }
 
+  /** \brief Just inserts the path with given idx again into the path collection
+  */
+  void PlanningModel::copyPath(const std::string& pathCollection, int pathIdx)
+  {
+    if ( ! mpScene->hasPathKey(pathCollection))
+      throw MUK_EXCEPTION_SIMPLE((boost::format("no access path with this key: %s") % (pathCollection)).str().c_str());
+
+    auto& coll = mpScene->getPathCollection(pathCollection);
+    const auto& paths = coll.getPaths();
+    if (pathIdx < 0 || pathIdx >= paths.size())
+      throw MUK_EXCEPTION((boost::format("unable to update path No.%d") % (pathIdx)).str().c_str(), boost::format("Not a valid index").str().c_str());
+
+    const auto path = paths[pathIdx];
+    coll.insertPath(path);
+  }
+
+  /**
+  */
   void PlanningModel::loadPath(const std::string& pathCollection, const std::string& filename)
   {
     auto& coll = mpScene->getPathCollection(pathCollection);
@@ -306,6 +341,50 @@ namespace muk
       throw MUK_EXCEPTION("Key already exists", name.c_str());
     mpScene->insertPathCollection(name);
   }
+
+  /** \brief Adds a new path collection using the reference collection's goal regions and a new #MukStateRegion based on the respective path and state indices.
+
+    \param[in] name name of the reference collection from which the new replanning collection is build
+    \param[in] pathIdx idx in the list of curently existing paths
+    \param[in] stateIdx idx of the state in the path with index #pathIdx
+    \return the new collection's name
+
+    throws if any prerequisite is missing (reference collection, reference path, reference state) or if the new key already exists
+  */
+  std::string PlanningModel::addReplanningCollection(const std::string& name, int pathIdx, int stateIdx)
+  {
+    // first check consistency
+    if ( ! mpScene->hasPathKey(name))
+      throw MUK_EXCEPTION("Source collection does not exist", name.c_str());
+    const auto& paths = mpScene->getPathCollection(name).getPaths();
+    if (pathIdx >= paths.size())
+    {
+      throw MUK_EXCEPTION_SIMPLE("path idx exceeds number of available paths.");
+    }
+    const auto& states = paths[pathIdx].getStates();
+    if (stateIdx >= states.size())
+    {
+      throw MUK_EXCEPTION_SIMPLE("state idx exceeds number of available states.");
+    }
+    const auto newName = std::string(name) + "_" + std::to_string(pathIdx) + "_" + std::to_string(stateIdx);
+    if (mpScene->hasPathKey(newName))
+      throw MUK_EXCEPTION("Target collection already exists", newName.c_str());
+    mpScene->insertPathCollection(newName);
+    const auto& collSrc = mpScene->getPathCollection(name);
+    auto&       collTar = mpScene->getPathCollection(newName);
+    collSrc.mirror(collTar);
+    // now everything besides start and goal is the same -> copy Target completely und first state of the path
+    const auto probDefSrc = collSrc.getProblemDefinition();
+    auto       probDefTar = collTar.getProblemDefinition();
+    probDefTar->clearStart();
+    auto startReg = std::make_unique<MukStateRegion>();
+    startReg->setCenter(states[stateIdx]);
+    startReg->setPhi(0);
+    startReg->setResolution(0);
+    startReg->setRadius(0);
+    probDefTar->addStartRegion(std::move(startReg));
+    return newName;
+  }
   
   /**
   */
@@ -365,6 +444,7 @@ namespace muk
     pPlanner->update();
     
     auto* pruner = mpScene->getPruner();        
+    pruner->setProblemDefinition(coll.getProblemDefinition());
     pruner->setKappa(coll.getProblemDefinition()->getKappa());
     pruner->setMaxDistance(coll.getProblemDefinition()->getRadius() + coll.getProblemDefinition()->getSafetyDist()); 
 
@@ -372,7 +452,7 @@ namespace muk
     interpolator->setKappa(coll.getProblemDefinition()->getKappa());
   }
 
-  /**
+  /** \brief switches between sampling from a bounding box and sampling from a list of points
   */
   void PlanningModel::setSamplingType(const StateSamplerData& data)
   {
@@ -381,6 +461,77 @@ namespace muk
 
     auto pData = std::make_unique<StateSamplerData>(data);
     mpScene->getPathCollection(mActivePathCollection).getProblemDefinition()->setSamplingData(std::move(pData));
+  }
+
+  /** \brief set the bounds of the ProblemDefinition to the boundingbox of all obstacles and all states
+  */
+  void PlanningModel::setDefaultBounds(const std::string& name)
+  {
+    setMinimumBounds(name);
+    auto& coll     = mpScene->getPathCollection(name);
+    auto  prob     = coll.getProblemDefinition();
+    Bounds bounds  = prob->getBounds();
+    const auto obs = mpScene->getObstacleKeys();
+    if (bounds.getMin() == bounds.getMax() && ! obs.empty())
+    {
+      // initialize
+      const auto* b = mpScene->getObstacle(obs.back())->getData()->GetBounds();
+      bounds.setMin(b[0], b[2], b[4]);
+      bounds.setMax(b[1], b[3], b[5]);
+      prob->setBounds(bounds);
+    }
+    for (const auto& ob : obs)
+    {
+      addObstacleBounds(name, ob);
+    }
+  }
+
+  /** \brief Adds the bbox of the passed #obstacle to the bounds of the problem definition of collection #path
+  */
+  void PlanningModel::addObstacleBounds(const std::string& path, const std::string& obstacle)
+  {
+    auto& coll    = mpScene->getPathCollection(path);
+    auto  prob    = coll.getProblemDefinition();
+    Bounds bounds = prob->getBounds();
+    auto  obs     = mpScene->getObstacle(obstacle);
+    bounds.update(obs->getData()->GetBounds());
+    prob->setBounds(bounds);
+    LOG_LINE << "added bounds of " << obstacle;
+  }
+
+  /** \brief set the bounds of the ProblemDefinition to the minimum (zero or bbox of start and goal states)
+  */
+  void PlanningModel::setMinimumBounds(const std::string& name)
+  {
+    Bounds bounds;
+    auto& coll = mpScene->getPathCollection(name);
+    auto  prob = coll.getProblemDefinition();
+    auto statesI = prob->getStartStates();
+    // initialize bounds
+    if ( ! statesI.empty())
+    {
+      const auto& s = statesI.back().coords;
+      bounds.setMin(s);
+      bounds.setMax(s);
+    }
+    for (const auto& state : statesI)
+    {
+      bounds.update(state.coords);
+    }
+    auto statesG = prob->getGoalStates();
+    if (statesI.empty() && ! statesG.empty())
+    {
+      // still have to initialize
+      const auto& s = statesG.back().coords;
+      bounds.setMin(s);
+      bounds.setMax(s);
+    }
+    for (const auto& state : statesG)
+    {
+      bounds.update(state.coords);
+    }
+    prob->setBounds(bounds);
+    LOG_LINE << "set to minimum bounds";
   }
 }
 }

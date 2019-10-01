@@ -118,6 +118,14 @@ namespace muk
 
   /**
   */
+  void IInterpolator::setInput(const MukPath& p) 
+  {
+    mInput = p; 
+    mInterpolated = false; 
+  }
+
+  /**
+  */
   IInterpolator::result_type IInterpolator::getInterpolation() const 
   {
     if ( ! mInterpolated)
@@ -127,6 +135,23 @@ namespace muk
     return getInterpolation(mInterpolationType); 
   }
 
+  /**
+  */
+  IInterpolator::InterpolatedPoses IInterpolator::getInterpolatedPoses() const
+  {
+    if ( ! mInterpolated)
+    {
+      throw MUK_EXCEPTION_SIMPLE("The Interpolator needs te be updated first!");
+    }
+    return getInterpolatedPoses(mInterpolationType); 
+  }
+
+  /**
+  */
+  IInterpolator::InterpolatedPoses IInterpolator::getInterpolatedPoses(EnInterpolationTypes) const
+  {
+    return InterpolatedPoses(); 
+  }
 }
 }
 

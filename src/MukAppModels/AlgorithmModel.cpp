@@ -27,10 +27,9 @@ namespace muk
   {
   }
 
-  /**
-  * \brief prepare all listed algorithms
+  /** \brief prepare all listed algorithms
 
-  here, names of AlgorithmFactory should be used
+    here, names of AlgorithmFactory should be used
   */
   std::vector<std::string> AlgorithmModel::listItems()
   {
@@ -48,8 +47,7 @@ namespace muk
     mConnections.clear();
   }
 
-  /**
-  * \brief add a new algorithm to AlgorithmManager
+  /** \brief add a new algorithm to AlgorithmManager
   */
   unsigned int AlgorithmModel::addAlgorithm(const std::string& name)
   {
@@ -57,16 +55,14 @@ namespace muk
     return mAlgorithmManager.addAlgorithm(name);
   }
     
-  /**
-  * \brief delete algorithm from AlgorithmManager
+  /** \brief delete algorithm from AlgorithmManager
   */
   void AlgorithmModel::deleteAlgorithm(unsigned int id)
   {
     mAlgorithmManager.removeAlgorithm(id);
   }
 
-  /**
-  * \brief connect two algorithms
+  /** \brief connect two algorithms
   */
   void AlgorithmModel::addConnection(unsigned int sourceID, unsigned int sourcePort, unsigned int destinationID, unsigned int destinationPort)
   {
@@ -76,8 +72,7 @@ namespace muk
     mConnections.insert(std::make_pair(destination, source));
   }
 
-  /**
-  * \brief delete connection between two algorithms
+  /** \brief delete connection between two algorithms
   */
   void AlgorithmModel::deleteConnection(unsigned int sourceID, unsigned int sourcePort, unsigned int destinationID, unsigned int destinationPort)
   {
@@ -86,16 +81,14 @@ namespace muk
     mConnections.erase(destination);
   }
 
-  /**
-  * \return algorithm instance by id
+  /** \return algorithm instance by id
   */
   const AlgorithmWrapper& AlgorithmModel::getAlgorithm(unsigned int id) const
   {
     return mAlgorithmManager.getAlgorithm(id);
   }
 
-  /**
-  * \return algorithm instance by id
+  /** \return algorithm instance by id
   */
   AlgorithmWrapper& AlgorithmModel::getAlgorithm(unsigned int id)
   {
@@ -166,74 +159,94 @@ namespace muk
     XmlDocument::save(filename.c_str(), *doc);
   }
 
-    /** \brief loads an algorithm graph from a xml file
+  /** \brief loads an algorithm graph from a xml file
 
-      At start up, where algorithms might be loaded, throwing an exception is not acceptable.
-      After that, it is desired.
+    At start up, where algorithms might be loaded, throwing an exception is not acceptable.
+    After that, it is desired.
 
-      \param badPropertiesThrow flag to indicate throwing or logging an expception that occurs during setting properties
-    */
-    void AlgorithmModel::loadAlgorithm(const std::string& filename, bool badPropertiesThrow)
+    \param badPropertiesThrow flag to indicate throwing or logging an expception that occurs during setting properties
+  */
+  void AlgorithmModel::loadAlgorithm(const std::string& filename, bool badPropertiesThrow)
+  {
+    try
     {
-      try
+      auto doc = XmlDocument::read(filename.c_str());
+      auto root = doc->getRoot().getChild("Algorithm");
+      mAlgorithmManager.clear();
+      mConnections.clear();
+      auto ndNodes = root.getChild("AlgNodes").getChildren();
+      auto ndEdges = root.getChild("Edges").getChildren();
+      std::map<unsigned int, unsigned int> lut;
+      // load nodes
+      for (const auto& node : ndNodes)
       {
-        auto doc = XmlDocument::read(filename.c_str());
-        auto root = doc->getRoot().getChild("Algorithm");
-        mAlgorithmManager.clear();
-        mConnections.clear();
-        auto ndNodes = root.getChild("AlgNodes").getChildren();
-        auto ndEdges = root.getChild("Edges").getChildren();
-        std::map<unsigned int, unsigned int> lut;
-        // load nodes
-        for (const auto& node : ndNodes)
+        auto algName = node.getChild("Name").getValue();
+        auto oldID  = std::atoi(node.getChild("ID").getValue());
+        auto tempID = addAlgorithm(algName);
+        lut[tempID] = oldID;
+        auto& alg   = mAlgorithmManager.getAlgorithm(tempID);
+        auto ndParams = node.getChild("Properties").getChildren();
+        for (const auto& ndProp : ndParams)
         {
-          auto algName = node.getChild("Name").getValue();
-          auto oldID  = std::atoi(node.getChild("ID").getValue());
-          auto tempID = addAlgorithm(algName);
-          lut[tempID] = oldID;
-          auto& alg   = mAlgorithmManager.getAlgorithm(tempID);
-          auto ndParams = node.getChild("Properties").getChildren();
-          for (const auto& ndProp : ndParams)
+          try
           {
-            try
+            if (alg.hasProperty(ndProp.getName()))
+              alg.setProperty(ndProp.getName(), ndProp.getValue());
+          }
+          catch(std::exception& e)
+          {
+            if (badPropertiesThrow)
+              throw;
+            else
             {
-              if (alg.hasProperty(ndProp.getName()))
-                alg.setProperty(ndProp.getName(), ndProp.getValue());
-            }
-            catch(std::exception& e)
-            {
-              if (badPropertiesThrow)
-                throw;
-              else
-              {
-                LOG_LINE << e.what();
-              }
+              LOG_LINE << e.what();
             }
           }
         }
-        mAlgorithmManager.resetIDs(lut);
-        // then load and add edges
-        for (const auto& ndEdge : ndEdges)
-        {
-          auto srcID = std::atoi(ndEdge.getChild("SourceId").getValue());
-          auto tarID = std::atoi(ndEdge.getChild("TargetId").getValue());
-          auto srcPortID = std::atoi(ndEdge.getChild("SourcePortId").getValue());
-          auto tarPortID = std::atoi(ndEdge.getChild("TargetPortId").getValue());
-          mAlgorithmManager.connectPorts(srcID, srcPortID, tarID, tarPortID);
-          mConnections[std::make_pair(srcID, srcPortID)] = std::make_pair(tarID, tarPortID);
-        }
       }
-      catch (const MukException&)
+      mAlgorithmManager.resetIDs(lut);
+      // then load and add edges
+      for (const auto& ndEdge : ndEdges)
       {
-        mAlgorithmManager.clear();
-        throw;
-      }
-      catch (const std::exception&)
-      {
-        mAlgorithmManager.clear();
-        throw;
+        auto srcID = std::atoi(ndEdge.getChild("SourceId").getValue());
+        auto tarID = std::atoi(ndEdge.getChild("TargetId").getValue());
+        auto srcPortID = std::atoi(ndEdge.getChild("SourcePortId").getValue());
+        auto tarPortID = std::atoi(ndEdge.getChild("TargetPortId").getValue());
+        mAlgorithmManager.connectPorts(srcID, srcPortID, tarID, tarPortID);
+        mConnections[std::make_pair(srcID, srcPortID)] = std::make_pair(tarID, tarPortID);
       }
     }
+    catch (const MukException&)
+    {
+      mAlgorithmManager.clear();
+      throw;
+    }
+    catch (const std::exception&)
+    {
+      mAlgorithmManager.clear();
+      throw;
+    }
+  }
 
+  /** \brief return the first algorithm with given key, otherwise returns nullptr.
+  */
+  AlgorithmWrapper* AlgorithmModel::getAlgorithmByAlias(const std::string& key)
+  {
+    const auto ids = mAlgorithmManager.getIds();
+    for (auto id : ids)
+    {
+      auto& wrapper = mAlgorithmManager.getAlgorithm(id);
+      if (wrapper.getAlias() == key)
+        return &wrapper;
+    }
+    return nullptr;
+  }
+
+  /** \brief return the first algorithm with given key, otherwise returns nullptr.
+  */
+  const AlgorithmWrapper* AlgorithmModel::getAlgorithmByAlias(const std::string& key) const
+  {
+    return const_cast<AlgorithmModel*>(this)->getAlgorithmByAlias(key);
+  }
 } // namespace muk
 } // namespace gris

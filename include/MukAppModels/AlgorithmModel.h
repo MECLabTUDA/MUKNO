@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseModel.h"
+#include "MukQt/TabImaging.h"
 #include "MukAlgorithms\AlgorithmManager.h"
 #include "MukAlgorithms\AlgorithmWrapper.h"
 #include "MukAlgorithms\AlgorithmFactory.h"
@@ -28,16 +29,16 @@ namespace gris
         const AlgorithmWrapper&     getAlgorithm(unsigned int id) const;
         AlgorithmWrapper&           getAlgorithm(unsigned int id);
         void                        deleteAlgorithm(unsigned int id);
-
-        void                        addConnection(unsigned int sourceID, unsigned int sourcePort, unsigned int destinationID, unsigned int destinationPort);
+        void                        addConnection   (unsigned int sourceID, unsigned int sourcePort, unsigned int destinationID, unsigned int destinationPort);
         void                        deleteConnection(unsigned int sourceID, unsigned int sourcePort, unsigned int destinationID, unsigned int destinationPort);
-
-        std::vector<std::string>    listItems();
-        std::pair<uint, uint>       getSource(const std::pair<uint, uint>& destination);
         void                        update();
 
-      public:
+    public:
+        std::vector<std::string>    listItems();
+        std::pair<uint, uint>       getSource(const std::pair<uint, uint>& destination);
         const AlgorithmManager&     getManager() const { return mAlgorithmManager; }
+              AlgorithmWrapper*     getAlgorithmByAlias(const std::string& key);
+        const AlgorithmWrapper*     getAlgorithmByAlias(const std::string& key) const;
 
       public:
         void                        saveAlgorithm(const std::string& filename) const;

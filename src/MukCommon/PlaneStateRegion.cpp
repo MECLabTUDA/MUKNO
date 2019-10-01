@@ -66,6 +66,19 @@ namespace gris
       return result;
     }
 
+    /**
+    */
+    std::unique_ptr<IStateRegion> PlaneStateRegion::clone() const
+    {
+      auto pObj = std::make_unique<PlaneStateRegion>();
+      pObj->mOrigin             = mOrigin;
+      pObj->mNormal             = mNormal;
+      pObj->mDirectionAncor     = mDirectionAncor;
+      pObj->mBoundingPolygon    = mBoundingPolygon;
+      pObj->mResolution         = mResolution;
+      pObj->mPointsTowardsAncor = mPointsTowardsAncor;
+      return std::move(pObj);
+    }
 
     /**
     */

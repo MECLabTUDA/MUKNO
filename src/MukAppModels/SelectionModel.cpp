@@ -53,14 +53,14 @@ namespace muk
     size_t obstacleCount = 12;
     size_t maxComponentCount = 6;
     size_t accessCanalCount = 3;
-    const double componentWeightsInitValue = 0.25;
-    const double componentFiltersInitValue = 100;
-    const double obstacleWeightsInitValue = 0.25;
-    const double obstacleFiltersInitValue = 0.5;
-    std::vector<double> componentWeights = std::vector<double>(maxComponentCount, componentWeightsInitValue);
-    std::vector<double> componentFilters = std::vector<double>(maxComponentCount, componentFiltersInitValue);
-    std::vector<double> obstacleWeights = std::vector<double>(obstacleCount, obstacleWeightsInitValue);
-    std::vector<double> obstacleFilters = std::vector<double>(obstacleCount, obstacleFiltersInitValue);
+    const double componentWeightsInitValue  = 0.25;
+    const double componentFiltersInitValue  = 100;
+    const double obstacleWeightsInitValue   = 0.25;
+    const double obstacleFiltersInitValue   = 0.5;
+    std::vector<double> componentWeights    = std::vector<double>(maxComponentCount, componentWeightsInitValue);
+    std::vector<double> componentFilters    = std::vector<double>(maxComponentCount, componentFiltersInitValue);
+    std::vector<double> obstacleWeights     = std::vector<double>(obstacleCount, obstacleWeightsInitValue);
+    std::vector<double> obstacleFilters     = std::vector<double>(obstacleCount, obstacleFiltersInitValue);
       // threshold (Values under that th are considered air) 
     const double airThreshold = 500;
       // ratio of pixel under and over the threshold to consider the next state a hole 
@@ -121,7 +121,7 @@ namespace muk
   const std::vector<size_t>& SelectionModel::getBoneOrder()         const { return mp->boneOrder; }
   const std::vector<size_t>& SelectionModel::getAirholesOrder()     const { return mp->airholeOrder; }
 
-  /** \brief loads necessary data of the active path collection
+  /** \brief Loads internal data of the active path collection. For computation call "compute".
   */
   void SelectionModel::loadPathCollection(const std::string& key)
   {
@@ -137,7 +137,7 @@ namespace muk
     }
   }
 
-  /** returns the Indecies of the paths set as the AccessCanals
+  /** returns the Indices of the paths set as the AccessCanals
   */
   std::vector<size_t> SelectionModel::selectedIndices() const
   {
@@ -193,7 +193,7 @@ namespace muk
     // gets the state which is goalThreshold away from endState of every path
     for (size_t i(0); i < mp->filteredPaths.size(); i++)
     {
-      auto currentPath = pVisColl->getMukPath(mp->filteredPaths[i])->asMukPath().getPath();
+      auto currentPath = pVisColl->getMukPath(mp->filteredPaths[i])->asMukPath().getStates();
       pointsOnCircle[i] = currentPath[determineCutOffState(currentPath, startState, goalThreshold)].coords;
     }
     std::vector<size_t> bestSelection = { 0,0,0};
@@ -236,7 +236,7 @@ namespace muk
     auto alpha = acos((cos(a) - cos(b)*cos(c)) / (sin(b)*sin(c))); // the angle <CAB on the sphere
     auto beta = acos((cos(b) - cos(a)*cos(c)) / (sin(a)*sin(c))); // the angle <ABC on the sphere
     auto gamma = acos((cos(c) - cos(a)*cos(b)) / (sin(a)*sin(b))); // the angle <BCA on the sphere 
-    auto Area = pow(goalThreshold, 2) * (alpha + beta + gamma - M_PI); // the Area of the triangle on the sphere
+    auto Area = pow(goalThreshold, 2) * (alpha + beta + gamma - M_Pi); // the Area of the triangle on the sphere
     LOG_LINE << "Area of the spherical triangle: " << Area << " mm² and of the flat triangle: " << bestArea << " mm²";
     // if a canal was set before it wont be set again (as that would unset the canal instead)
     for(size_t i(0); i < mp->accessCanalCount; i++)
@@ -301,8 +301,6 @@ namespace muk
   }
 
   /** \brief Computes all available properties of existing paths
-
-    
   */
   void SelectionModel::compute()
   {
@@ -348,15 +346,15 @@ namespace muk
     for (int i(0); i < (int)N; ++i)
     {
       auto interpolatedPath = interpolatedPaths[i];
-      auto dists        = computeDistances(*mpModels->pAppModel->getScene()->getCollisionDetector(), interpolatedPath.getPath(), interpolatedPath.getRadius());
+      auto dists = computeDistances(*mpModels->pAppModel->getScene()->getCollisionDetector(), interpolatedPath.getStates(), interpolatedPath.getRadius());
       mp->distances[i]  = *std::min_element(dists.begin(), dists.end());
-      mp->curvatures[i] = pEval.pathStraightness(interpolatedPath.getPath());
-      mp->goalAngles[i] = pEval.goalAngleDifference(paths[i].getPath().back(), pScene->getPathCollection(key).getProblemDefinition()->getGoalStates());
-      mp->lengths[i]    = computeLength(interpolatedPath.getPath());
+      mp->curvatures[i] = pEval.pathStraightness(interpolatedPath.getStates());
+      mp->goalAngles[i] = pEval.goalAngleDifference(paths[i].getStates().back(), pScene->getPathCollection(key).getProblemDefinition()->getGoalStates());
+      mp->lengths[i] = computeLength(interpolatedPath.getStates());
       if (mp->ctFileLoaded)
       {
         const auto* pCTImage = mpModels->pWorldVisModel->getCtImage();
-        auto currentTextureSpecifics = pEval.textureSpecifics(interpolatedPath.getPath(), pCTImage, interpolatedPath.getRadius(), mp->holeVariables);
+        auto currentTextureSpecifics = pEval.textureSpecifics(interpolatedPath.getStates(), pCTImage, interpolatedPath.getRadius(), mp->holeVariables);
         mp->bonethickness[i] = currentTextureSpecifics[1];
         mp->airholes[i] = currentTextureSpecifics[2];
       }
@@ -365,7 +363,14 @@ namespace muk
     // because it takes alot of time
     if (mp->advancedOptionsRequested)
     {
-      mp->minDistToEachObstacle = pEval.minDistToEachObst(*pVisColl, mp->filteredPaths);
+      if (visAvailable)
+      {
+        mp->minDistToEachObstacle = pEval.minDistToEachObst(*pVisColl, mp->filteredPaths);
+      }
+      else
+      {
+        mp->minDistToEachObstacle = pEval.minDistToEachObst(interpolatedPaths, mp->filteredPaths);
+      }
     }
     mp->distanceOrder   = customSort(mp->distances,   std::greater<double>());
     mp->curvatureOrder  = customSort(mp->curvatures,  std::less<double>());

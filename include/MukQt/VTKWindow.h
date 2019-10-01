@@ -38,7 +38,8 @@ namespace gris
         void  setBackgroundColor(const Vec3d& color);
         Vec3d getBackgroundColor();
         CameraConfiguration getCameraConfiguration() const;
-
+        void setOrientationMarkerVisibility(bool b);
+        bool getOrientationMarkerVisibility() const;
 
       public:
         vtkRenderer* getRenderer();

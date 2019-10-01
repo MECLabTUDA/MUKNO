@@ -11,4 +11,3 @@
 #define MUK_EVALUATION_CREATE_DLL
 
 #include "gstd/logger.h"
-#include "private/targetver.h"

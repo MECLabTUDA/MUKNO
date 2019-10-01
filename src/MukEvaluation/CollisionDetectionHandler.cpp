@@ -54,10 +54,10 @@ namespace muk
   std::pair<size_t, double> CollisionDetectionHandler::distance(const MukPath& path, double pathRadius)
   { 
     auto ret = std::make_pair(std::numeric_limits<size_t>::quiet_NaN(), std::numeric_limits<double>::infinity());
-    if ( ! path.getPath().empty())
+    if ( ! path.getStates().empty())
     {
       gris::Vec3d nn;
-      auto dists = computeDistances(*pDetector, path.getPath(), pathRadius);
+      auto dists = computeDistances(*pDetector, path.getStates(), pathRadius);
       auto iter = std::min_element(dists.begin(), dists.end());    
       ret.first = std::distance(dists.begin(), iter);
       ret.second = *iter;

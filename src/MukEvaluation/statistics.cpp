@@ -114,7 +114,7 @@ namespace gris
       curvatures.push_back(0);
       if (data.size()>2)
       {
-        for (size_t i(1); i<data.size()-2; ++i)
+        for (size_t i(1); i<=data.size()-2; ++i)
         {
           Sphere3D sphere;
           fitSphere(data[i-1].coords, data[i].coords, data[i+1].coords, sphere);

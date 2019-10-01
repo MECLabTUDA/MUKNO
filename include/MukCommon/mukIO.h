@@ -1,9 +1,10 @@
 #pragma once
 
-#include "MukCommon\muk_common_api.h"
-#include "MukCommon/SystemCalibration.h"
-#include "MukCommon/MukPath.h"
-#include "MukCommon/MukPathGraph.h"
+#include "muk_common_api.h"
+#include "MukPath.h"
+#include "MukPathGraph.h"
+#include "SystemCalibration.h"
+#include "vtk_tools.h"
 
 class vtkPolyData;
 

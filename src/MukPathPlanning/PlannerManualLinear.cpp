@@ -72,7 +72,7 @@ namespace muk
     auto waypoints = pProbDef->getWaypoints();
     mPaths.push_back(MukPath());
     mPaths.back().setRadius(pProbDef->getRadius());
-    auto& path = mPaths.back().getPath();
+    auto& path = mPaths.back().getStates();
     if (waypoints.empty())
     {
       auto pair = std::make_pair<size_t, size_t>(0, 0);

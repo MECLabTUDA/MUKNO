@@ -28,6 +28,7 @@ namespace gris
         std::vector<double> weightedDistances(std::vector<std::vector<double>> minDistToObst, std::vector<double> obstacleWeightings);
 
         std::vector<std::vector<double>> minDistToEachObst(VisPathCollection& paths, const std::vector<size_t> filteredPaths);
+        std::vector<std::vector<double>> minDistToEachObst(std::vector<MukPath>& paths, const std::vector<size_t> filteredPaths);
         // adds all curvatures of a path 
         double pathStraightness(const std::vector<MukState>& path) const;
         // determines the difference between the ideal angle of arrival and the actual angle of arrival

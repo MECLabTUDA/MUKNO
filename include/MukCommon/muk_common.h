@@ -1,13 +1,5 @@
 #pragma once
 
-template <typename T>
-class vtkSmartPointer;
-
-#define TypeVtk(type) vtkSmartPointer<type>
-#define DeclVtk(type) vtkSmartPointer<type>
-#define DefVtk(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-#define NewVtk(type) vtkSmartPointer<type>::New()
-
 // declare template spezialization of type text-archive
 // this allows definition in cpp
 #define Forward_Declare_Muk_Boost_Serialization \
@@ -42,15 +34,3 @@ void serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive& ar,
 #define MUK_GET(get) [&] () { return get(); }
 #define MUK_C_SET(type, set) [&] (const type& d) { set(d); }
 #define MUK_C_GET(type, get) [&] () -> const type& { return get(); }
-
-namespace gris
-{
-  namespace muk
-  {
-    template <typename T, class... Args>
-    inline vtkSmartPointer<T> make_vtk(Args&... args)
-    {
-      return vtkSmartPointer<T>::New(std::forward<Args>(args)...);
-    }    
-  }
-}

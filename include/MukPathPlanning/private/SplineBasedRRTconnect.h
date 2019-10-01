@@ -1,7 +1,7 @@
 #ifndef OMPL_GEOMETRIC_PLANNERS_BI_RRT_SPLINE_BASED_2_
 #define OMPL_GEOMETRIC_PLANNERS_BI_RRT_SPLINE_BASED_2_
 
-#include "private/BezierSpiralInterpolator.h"
+#include "BezierSpiralInterpolator.h"
 #include "private/Motion.h"
 #include "private/PlannerStatistic.h"
 
@@ -13,17 +13,17 @@
 #include "ompl/datastructures/NearestNeighbors.h"
 #pragma warning (pop)
 
+#include <Eigen/Core>
+
 namespace ompl
 {
   namespace geometric
   {
-    /** \brief Implementation of the SplineBased-RRT by Yang et al.
+    /** \brief Implementation of the Spline-Based RRT by Yang et al.
 
-    The proposed RRT does not work in our environment.
-    The actual algorithm works only if the curvature corresponds to the environment in a nice way....
-    This implementation uses a similar approach to 
-    Sertac Karaman, Sampling-Based Algorithms for Optimal Motion Planning
-    optimal RRT (RRT*)
+      The proposed RRT does not work properly in our environment.
+      The curvature constraint is severe (0.05) compared to the narrow anatomy.
+      
     */
     class SplineBasedRRTconnect : public base::Planner
     {
@@ -43,6 +43,8 @@ namespace ompl
         const gris::muk::PlannerStatistic& getStats() const { return mStats; };
 
       public:
+        void    setVerbose(bool val)                    { mVerbose = val; }
+        bool    getVerbose()                  const     { return mVerbose; }
         void    setKappa (double val)                   { mKappa = val; mSpiralBuilder.setKappa(val); }
         double  getKappa ()                   const     { return mKappa; }
         void    setStepSize (double val);
@@ -51,8 +53,12 @@ namespace ompl
         double  getGoalBias ()                const     { return mGoalBias; }
         void    setNearestBallRadius (double val)       { mRadiusNearestBall = val; }
         double  getNearestBallRadius()        const     { return mRadiusNearestBall; }
-        void    setConnectionRange (double val)         { mConnectionRange = val; }
-        double  getConnectionRange()          const     { return mConnectionRange; }
+        void    setConeLength(double val)               { mConeLength = val; }
+        double  getConeLength()               const     { return mConeLength; }
+        void    setConeRadius(double val)               { mConeRadius = val; }
+        double  getConeRadius()               const     { return mConeRadius; }
+        void    setMaxChildren(size_t val)              { mMaxChildren = val; }
+        size_t  getMaxChildren()              const     { return mMaxChildren; }
         size_t  getNumberOfStartTreeRoots()   const;
 
         template<template<typename T> class NN>
@@ -65,12 +71,14 @@ namespace ompl
       protected:
         void freeMemory();
         void freeMotion(Motion* motion) const;
-
         double distanceFunction(const Motion *a, const Motion *b) const;
 
       private:
         bool preprocess();
         void postprocess(bool solved, bool approximated);
+        bool curvatureSatisfied(const gris::Vec3d& v, const gris::Vec3d& w) const;
+        //bool curvatureSatisfied(const Eigen::Vector3d& v, const Eigen::Vector3d& w) const;
+        void directionsFromMotions(const Motion* mFrom, const Motion* mTo,  Eigen::Vector3d& vFrom, Eigen::Vector3d& vTo) const;
 
       private:
         using TreeType = NearestNeighbors<Motion*>;
@@ -86,12 +94,9 @@ namespace ompl
         std::vector<Motion*>  selectStates(const std::vector<Motion*>& motions);
         Motion*               steer(TreeType& tree, Motion* from, const base::State* to, const base::PlannerTerminationCondition& ptc);
         std::vector<Motion*>  selectStatesFromOtherTree(TreeType& tree, Motion* motion);
-        //EnSteerResult         steer(const base::State* pStart, const base::State* pGoal, base::State* pResult) const;
         bool                  motionIsValid(const base::State *from, const base::State *to) const;
         bool                  insideCone(const Motion* src, const Motion* query)            const;
-
-        //void extendTree(TreeType& tree, Motion* pStart, const base::State* pTarget);
-        bool connectTree(TreeType& treeFrom, Motion* motionFrom, TreeType& treeTo, Motion* motionTo, const base::PlannerTerminationCondition& ptc);
+        bool                  connectTree(TreeType& treeFrom, Motion* motionFrom, TreeType& treeTo, Motion* motionTo, const base::PlannerTerminationCondition& ptc);
 
       private:
         std::unique_ptr<TreeType> mpStartTree;
@@ -101,14 +106,14 @@ namespace ompl
         RNG      rng_;
 
         gris::muk::BezierSpiralInterpolator mSpiralBuilder;
+        bool     mVerbose;
         double   mGoalBias;
         double   mKappa;
         double   mStepSize;
         double   mRadiusNearestBall;
-        double   mConnectionRange;
-        //double   mAngleConnectionThreshold = 0.75;
         double   mConeLength = 5.0;
         double   mConeRadius = 2.0;
+        size_t   mMaxChildren = 20;
 
         std::pair<Motion*, Motion*> mConnectionPoint;
         Motion* mpLastStartMotion;

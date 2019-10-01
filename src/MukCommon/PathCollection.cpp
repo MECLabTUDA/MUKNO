@@ -1,7 +1,8 @@
 #include "private/muk.pch"
 #include "PathCollection.h"
 
-#include "MukCommon/MukException.h"
+#include "muk_dynamic_property_tools.h"
+#include "MukException.h"
 
 #include <boost/format.hpp>
 
@@ -22,6 +23,8 @@ namespace gris
     */
     PathCollection::PathCollection(PathCollection&& o)
       : mName(std::move(o.mName))
+      , mpProbDef(std::move(o.mpProbDef))
+      , mInactiveObstacles(std::move(o.mInactiveObstacles))
       , mPaths(o.mPaths)
     {
       initialize();
@@ -43,9 +46,7 @@ namespace gris
     */
     void PathCollection::appendProperties()
     {
-      declareProperty<std::string>("Name",
-        std::bind(&PathCollection::setName, this, std::placeholders::_1), 
-        std::bind(&PathCollection::getName, this));
+      declareProperty<std::string>("Name", MUK_C_SET(std::string, setName), MUK_C_GET(std::string, getName));
     }
 
     /**
@@ -85,6 +86,14 @@ namespace gris
       std::swap(mPaths, o.mPaths);
       std::swap(mpProbDef, o.mpProbDef);
       std::swap(mInactiveObstacles, o.mInactiveObstacles);
+    }
+
+    /** \brief "clones" the problem definition, but without computed paths and name
+    */
+    void PathCollection::mirror(PathCollection& target) const
+    {
+      target.mInactiveObstacles = mInactiveObstacles;
+      mpProbDef->clone(*target.mpProbDef);
     }
 
     /**

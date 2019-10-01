@@ -13,7 +13,9 @@ namespace gris
 {
   namespace muk
   {
-    /**
+    /** \brief A representation of a motion planning problem formulation/definition.
+
+      Most importantly, it includes start and goal regions and parameters such as allowed deviation from states, safety distance and the curvature constraint.
     */
     class MUK_COMMON_API MukProblemDefinition : public gstd::DynamicProperty
     {
@@ -76,6 +78,7 @@ namespace gris
         void copyParameters(const MukProblemDefinition& other);
         void save(const std::string& filename, unsigned int version) const;
         void load(const std::string& filename, unsigned int version);
+        void clone(MukProblemDefinition& target) const;
 
       private:
         void appendProperties();

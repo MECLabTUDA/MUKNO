@@ -6,7 +6,7 @@
 #include "MukException.h"
 #include "CollisionDetectorKdTree.h"
 #include "PlannerFactory.h"
-#include "PrunerFactory.h"
+#include "OptimizerFactory.h"
 #include "InterpolatorFactory.h"
 #include "NavigatorFactory.h"
 #include "StateRegionFactory.h"
@@ -18,7 +18,7 @@
 #include "SystemCalibration.h"
 #include "ICollisionDetector.h"
 #include "IPathPlanner.h"
-#include "IPathPruner.h"
+#include "IPathOptimizer.h"
 #include "IInterpolator.h"
 #include "INavigator.h"
 #include "MukStringToolkit.h"
@@ -93,7 +93,7 @@ namespace muk
 
   /**
   */
-  void MukScene::setPruner(std::unique_ptr<IPathPruner> pObj)
+  void MukScene::setPruner(std::unique_ptr<IPathOptimizer> pObj)
   {
     mpPruner = std::move(pObj);
     mpPruner->setCollisionDetector(mpCollisionDetector);
@@ -430,7 +430,7 @@ namespace muk
       node = configNode.getChild("Planning").getChild("Pruner");
       {
         auto tmp = node.getChild("Type");
-        auto pruner = GetPrunerFactory().create(tmp.getValue());
+        auto pruner = GetOptimizerFactory().create(tmp.getValue());
         ::load(node, *pruner);
         dummyScene->setPruner(std::move(pruner));
       }
@@ -480,7 +480,7 @@ namespace muk
     mObstacles.clear();
     mSceneName.clear();
     mpPlanner      = nullptr == mpPlanner.get()       ? GetPlannerFactory().create("ManualPlanner") : GetPlannerFactory().create(mpPlanner->name());
-    mpPruner       = nullptr == mpPruner.get()        ? GetPrunerFactory().create("Yang-Spiral-Pruner") : GetPrunerFactory().create(mpPruner->name());
+    mpPruner       = nullptr == mpPruner.get()        ? GetOptimizerFactory().create("Yang-Spiral-Pruner") : GetOptimizerFactory().create(mpPruner->name());
     mpInterpolator = nullptr == mpInterpolator.get()  ? GetInterpolatorFactory().create("Linear-Interpolator") : GetInterpolatorFactory().create(mpInterpolator->name());    
 
     mpPlanner->setCollisionDetector(mpCollisionDetector);

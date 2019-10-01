@@ -36,7 +36,7 @@ namespace gris
     */
     MultiPortStateRegion::MultiPortStateRegion()
       : mRadius(1)
-      , mPhi(M_PI_2) // initial values correspond to half sphere
+      , mPhi(M_Pi_2) // initial values correspond to half sphere
       , mResolution(20)
     {
       declareProperty<double>("Phi", MUK_SET(double, setPhi), MUK_GET(getPhi));
@@ -48,7 +48,7 @@ namespace gris
     */
     void MultiPortStateRegion::setPhi(double val)
     {
-      if (val < 0 || val > gris::M_PI)
+      if (val < 0 || val > gris::M_Pi)
       {
         std::string info = "Passed Value: " + std::to_string(val);
         throw MUK_EXCEPTION("Value of parameter phi should has to be in [0, pi]", info.c_str());
@@ -106,7 +106,7 @@ namespace gris
           const double cphi = cos(phi);
           const double sphi = sin(phi);
           const size_t N = mResolution == 0 || stepPhi < 10e-5 ? 0 : static_cast<size_t>(floor(cos(phi) / stepPhi));
-          const double stepTheta = N == 0 ? 0 : 2*gris::M_PI / N;
+          const double stepTheta = N == 0 ? 0 : 2*gris::M_Pi / N;
           for (size_t j(0); j<=N; ++j) // ... compute states on the circle (longitude)
           {
             MukState nextState;
@@ -130,6 +130,18 @@ namespace gris
     void MultiPortStateRegion::setState(size_t idx, const MukState& s)
     {
       mStates[idx] = s;
+    }
+
+    /**
+    */
+    std::unique_ptr<IStateRegion> MultiPortStateRegion::clone() const
+    {
+      auto pObj = std::make_unique<MultiPortStateRegion>();
+      pObj->mStates     = mStates;
+      pObj->mRadius     = mRadius;
+      pObj->mPhi        = mPhi;
+      pObj->mResolution = mResolution;
+      return std::move(pObj);
     }
 
     /**

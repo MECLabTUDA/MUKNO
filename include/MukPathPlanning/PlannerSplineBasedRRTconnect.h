@@ -25,36 +25,39 @@ namespace gris
     class MUK_PP_API PlannerSplineBasedRRTconnect : public OmplPlanner
     {
       public:
-      PlannerSplineBasedRRTconnect();
-      ~PlannerSplineBasedRRTconnect();
+        PlannerSplineBasedRRTconnect();
+        ~PlannerSplineBasedRRTconnect();
 
-      static  const char* s_name()      { return "Spline-Based-RRT-Connect"; }
-      virtual const char* name() const  { return s_name(); }
-
-      public:
-      virtual void initialize();
-      virtual void update();
-      virtual bool calculate();
-      virtual void clearSearch();
-      virtual size_t availablePaths() const;
-
-      virtual MukPath        extractPath(size_t idx=0)  const;
-      virtual MukPathGraph   extractRoadmap()           const;
+        static  const char* s_name()      { return "Spline-Based-RRT-Connect"; }
+        virtual const char* name() const  { return s_name(); }
 
       public:
-      void    setGoalBias(double d)                 { mGoalBias = d;}
-      double  getGoalBias()                   const { return mGoalBias; }
-      void    setNearestBallRadius(double d)        { mNearestBallRadius = d;}
-      double  getNearestBallRadius()          const { return mNearestBallRadius; }
-      void    setConnectionRange(double d)          { mConnectionRange= d;}
-      double  getConnectionRange()            const { return mConnectionRange; }
+        virtual void initialize();
+        virtual void update();
+        virtual bool calculate();
+        virtual void clearSearch();
+        virtual size_t availablePaths() const;
+
+        virtual MukPath        extractPath(size_t idx=0)  const;
+        virtual MukPathGraph   extractRoadmap()           const;
+
+      public:
+        void    setGoalBias(double d)                 { mGoalBias = d;}
+        double  getGoalBias()                   const { return mGoalBias; }
+        void    setNearestBallRadius(double d)        { mNearestBallRadius = d;}
+        double  getNearestBallRadius()          const { return mNearestBallRadius; }
+        void    setConeLength(double d)               { mConeLength= d;}
+        double  getConeLength()                 const { return mConeLength; }
+        void    setConeRadius(double d)               { mConeRadius= d;}
+        double  getConeRadius()                 const { return mConeRadius; }
 
       private:
-      std::unique_ptr<ompl::geometric::SplineBasedRRTconnect> mpPlanner;
-      double mGoalBias;
-      double mNearestBallRadius;
-      double mConnectionRange;
+        std::unique_ptr<ompl::geometric::SplineBasedRRTconnect> mpPlanner;
+        double mGoalBias;
+        double mNearestBallRadius;
+        double mConeLength;
+        double mConeRadius;
+        size_t mMaxChildren;
     };
-
   }
 }

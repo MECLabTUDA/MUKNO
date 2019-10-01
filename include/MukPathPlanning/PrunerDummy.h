@@ -2,13 +2,15 @@
 
 #include "muk_pathplanning_api.h"
 
-#include "MukCommon/IPathPruner.h"
+#include "MukCommon/IPathOptimizer.h"
 
 namespace gris
 {
   namespace muk
   {
-    class MUK_PP_API PrunerDummy : public IPathPruner
+    /** \brief Dummy interface that just returns the input path.
+    */
+    class MUK_PP_API PrunerDummy : public IPathOptimizer
     {
       public:
         PrunerDummy();
@@ -19,8 +21,7 @@ namespace gris
                const char* name()     const { return s_name(); }
 
       public:
-        virtual MukPath calculate(const MukPath& input);
-        void    clone(const IPathPruner* pOther);
+        virtual MukPath calculate(const MukPath& input) const;
     };
   }
 }

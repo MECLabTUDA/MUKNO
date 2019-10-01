@@ -7,6 +7,7 @@
 #include "MukCommon/MukPath.h"
 
 #include "MukVisualization/VisCoordinateSystemCollection.h"
+#include "MukVisualization/VisMukPath.h"
 
 #include "MukQt/VtkWindow.h"
 
@@ -40,7 +41,8 @@ namespace gris
         virtual ~VisualizationModel();
 
       public:
-        virtual const char* name() const { return "VisualizationModel"; }
+        static  const char* s_name()              { return "VisualizationModel"; }
+        virtual const char* name() const override { return s_name(); }
 
       public:
         void setScene(std::shared_ptr<MukScene> pScene);
@@ -91,6 +93,8 @@ namespace gris
       public:
         void showBounds();
         void setDefaultFocus();
+        void setOrientationMarkerVisibility(bool b);
+        bool getOrientationMarkerVisibility() const;
         void focus();
         void focusOnWaypoint();
         void render();
@@ -117,6 +121,7 @@ namespace gris
         vtkSmartPointer<vtkTransform> mpRobotTransform;
         MukPath  mAdaptedPath;
         Vec3d    mCurrentTargetOrientation;
+        VisMukPath::EnTopology mDefaultPathTopology;
     };
   }
 }

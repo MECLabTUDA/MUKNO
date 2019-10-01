@@ -47,22 +47,36 @@ namespace gris
       Vec3d  mNormal;
     };
 
-    /*class MUK_COMMON_API Plane2D
+    /** \brief a closed cone in 3D defined by its tip, direction, height and maximal radius.
+
+      can be queried if a point lies within the cone.
+    */
+    class MUK_COMMON_API Cone3D
     {
       public:
-      Plane2D()  {}
-      ~Plane2D() {}
+        Cone3D()
+          : mConeTip(0,0,0)
+          , mConeDirection(1,0,0)
+          , mLength(0.0)
+          , mRadius(0.0)
+        {
+        }
 
       public:
-      void setNormal(const Vec2d& n)  { mNormal = n; }
-      void setOrigin(const Vec2d& o)  { mOrigin = o; }
-      const Vec2d& getNormal() const  { return mNormal; }
-      const Vec2d& getOrigin() const  { return mOrigin; }
+        bool isInside(const Vec3d& p) const;
+
+      public:
+        void setConeTip(const Vec3d& p)       { mConeTip = p; }
+        void setConeDirection(const Vec3d& p) { mConeDirection = p; }
+        void setLength(double d) { mLength = d; }
+        void setRadius(double d) { mRadius = d; }
 
       private:
-      Vec2d  mOrigin;
-      Vec2d  mNormal;
-    };*/
+        Vec3d mConeTip;
+        Vec3d mConeDirection;
+        double mRadius;
+        double mLength;
+    };
     
     /**
     */
@@ -86,14 +100,12 @@ namespace gris
         double mRadius;
     };
 
-    /** 
+    /** \brief A representation of a circle in 3D, defined by center, radius and local coordinate system.
+
+      Compute either a point on the circle in [0,2pi] or a set of points from given start and goal angles.
     */
     class MUK_COMMON_API Circle3D
     {
-      public:
-        Circle3D()  {}
-        ~Circle3D() {}
-
       public:
         void setRadius(double r)        { mRadius = r; mInitialized = false; }
         void setCenter(const Vec3d& c)  { mCenter = c; mInitialized = false; }
@@ -104,6 +116,8 @@ namespace gris
         const Vec3d& getNormal() const { return mNormal; }
 
         Vec3d interpolate(double t) const;
+        std::vector<Vec3d> interpolate(double startAngle, double goalAngle, double resolution) const;
+        std::vector<Vec3d> interpolate(double startAngle, double goalAngle, size_t numPoints) const;
         Vec3d direction(double t)   const;
         double angle(const Vec3d& v) const;
 
@@ -151,7 +165,9 @@ namespace gris
         const Vec3d&  getDirection() const { return mDirection; }
 
       public:
-        void intersects(const Line3D& line, Query& query);
+        Vec3d project(const Vec3d& p)                       const;
+        Query intersects(const Line3D& line)                const;
+        void  intersects(const Line3D& line, Query& query)  const;
 
       private:
         Vec3d mOrigin;

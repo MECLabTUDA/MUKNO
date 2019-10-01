@@ -29,13 +29,6 @@ namespace muk
   {
     this->swap(o);
   }
-    
-  /**
-  */
-  void MukPath::setPath(const std::vector<MukState>& path)
-  {
-    mStates = path;
-  }
 
   /**
   */
@@ -46,10 +39,8 @@ namespace muk
     std::swap(mGoalDist, o.mGoalDist);
     std::swap(mNumberOfSearchStates, o.mNumberOfSearchStates);
     std::swap(mMillisecondsSpend, o.mMillisecondsSpend);
-    mStates.swap(o.getPath());
+    mStates.swap(o.getStates());
   }
-
-
 
   /**
   */
@@ -57,7 +48,6 @@ namespace muk
   {
     l.swap(r);
   }
-
 }
 }
 

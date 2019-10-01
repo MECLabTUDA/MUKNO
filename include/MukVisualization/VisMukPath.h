@@ -19,12 +19,14 @@ namespace gris
           singleColor,
           multiColor,
         };
-
+        
+        /** \brief possible topology for the visualization of a #MukPath (#VisMukPath).
+        */
         enum EnTopology
         {
-          vertices,
-          lines,
-          tube,
+          Vertices,
+          Lines,
+          Tube,
           N_Topologies
         };
 

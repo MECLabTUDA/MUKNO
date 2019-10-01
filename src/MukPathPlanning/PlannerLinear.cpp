@@ -116,8 +116,7 @@ namespace gris
           next.setRadius(pProbDef->getRadius());
           auto startNN = line.projection(asEigen(initStates[idx].coords));
           auto start   = MukState(asMuk(startNN), state.tangent);
-          next.getPath().push_back(start);
-          next.getPath().push_back(state);
+          next.getStates().push_back(start);
           work.push_back(next);
         }
       }
@@ -127,7 +126,7 @@ namespace gris
       for (int i(0); i<(int) work.size(); ++i)
       {
         double stepSize = mResolution;
-        const auto& path = work[i].getPath();
+        const auto& path = work[i].getStates();
         const auto p = path.front().coords;
         const auto t = path.front().tangent;
         double length = (path.back().coords-p).norm();
@@ -148,11 +147,11 @@ namespace gris
         if (valid)
         {
           mFoundPaths[i].setRadius(pProbDef->getRadius());
-          mFoundPaths[i].getPath() = path;
+          mFoundPaths[i].getStates() = path;
         }
       }
 
-      mFoundPaths.erase(std::remove_if(mFoundPaths.begin(), mFoundPaths.end(), [&] (const auto& path) { return path.getPath().empty(); }), mFoundPaths.end());
+      mFoundPaths.erase(std::remove_if(mFoundPaths.begin(), mFoundPaths.end(), [&] (const auto& path) { return path.getStates().empty(); }), mFoundPaths.end());
       if (mFoundPaths.empty())
         return false;
       else

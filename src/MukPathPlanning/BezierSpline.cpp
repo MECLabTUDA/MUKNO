@@ -123,7 +123,7 @@ namespace gris
     {
       const size_t MAX_SIZE = 500;
       if (numel > MAX_SIZE)
-        throw MUK_EXCEPTION("maximum size excelled", "implementation of BezierCurve::uniformSamples supports only a maximum of 500 samples"); 
+        throw MUK_EXCEPTION("maximum size excelled", "implementation of BezierCurve::uniformSamples supports only a maximum of 500 samples"); // to prevent running in excessive calculations
 
       const size_t N_SAMPLES = 500;
       std::vector<Vec3d> samples(N_SAMPLES);

@@ -1,7 +1,7 @@
 #include "private/muk.pch"
 #include "MukQt/VtkWindow.h"
 
-#include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include "MukVisualization/muk_colors.h"
 
@@ -66,6 +66,20 @@ namespace muk
   */
   VtkWindow::~VtkWindow()
   {
+  }
+
+  /**
+  */
+  void VtkWindow::setOrientationMarkerVisibility(bool b)
+  {
+    mpMarkerWidget->GetOrientationMarker()->SetVisibility(b);
+  }
+
+  /**
+  */
+  bool VtkWindow::getOrientationMarkerVisibility() const
+  {
+    return 1 == mpMarkerWidget->GetOrientationMarker()->GetVisibility();
   }
 
   /**

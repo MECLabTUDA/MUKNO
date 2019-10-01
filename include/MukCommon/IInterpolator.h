@@ -2,6 +2,7 @@
 
 #include "muk_common_api.h"
 #include "MukPath.h"
+#include "LieGroupSE3.h"
 
 #include "gstd/dynamicProperty.h"
 
@@ -27,9 +28,9 @@ namespace gris
         static int         typeFromString(const char*);
 
       public:        
-        typedef MukPath result_type;
         typedef std::shared_ptr<IInterpolator> Pointer;
-        typedef std::shared_ptr<const IInterpolator> ConstPointer;
+        using result_type       = MukPath;
+        using InterpolatedPoses = std::vector<se3::Pose3D>;
 
       public:
         IInterpolator();
@@ -38,12 +39,6 @@ namespace gris
         IInterpolator(IInterpolator&& o);
         IInterpolator& operator=(IInterpolator&&);
         virtual ~IInterpolator() {}
-
-      public:
-        // should not be implemented, during loading, only move is needed
-        /*IInterpolator(const IInterpolator& o);
-        IInterpolator& operator=(const IInterpolator& o);*/
-        //void swap(IInterpolator& rhs);
         
       public:        
         virtual const char* name() const = 0;
@@ -52,7 +47,7 @@ namespace gris
         virtual void    setKappa(double kappa)                  { mKappa = kappa; }
         virtual double  getKappa()                  const       { return mKappa;  }
 
-        void            setInput(const MukPath& p)              { mInput = p; mInterpolated = false; }
+        void            setInput(const MukPath& p);
         const MukPath&  getInput()                  const       { return mInput;  }
         void            setResolution(double val)               { mResolution = val; }
         double          getResolution()             const       { return mResolution; }
@@ -69,12 +64,14 @@ namespace gris
         virtual bool isValid()                    const = 0;
 
       public:
-        result_type getInterpolation() const;
+        result_type       getInterpolation()     const;
+        InterpolatedPoses getInterpolatedPoses() const;
         virtual result_type getControlPoints() const = 0;
         virtual std::vector<bool> validStates() const = 0;
 
       protected:
-        virtual result_type getInterpolation(EnInterpolationTypes) const = 0;
+        virtual result_type       getInterpolation(EnInterpolationTypes)     const = 0;
+        virtual InterpolatedPoses getInterpolatedPoses(EnInterpolationTypes) const;
         void appendProperties();
         
       protected:

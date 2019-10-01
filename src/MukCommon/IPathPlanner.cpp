@@ -13,14 +13,13 @@ namespace muk
   /**
   */
   IPathPlanner::IPathPlanner()
-    : mCalculationTime(0.25), mStepSize(2.0)
+    : mCalculationTime(0.25)
+    , mStepSize(2.0)
+    , mVerbose(false)
   {
-    declareProperty<double>("Calc-Time",
-      std::bind(&IPathPlanner::setCalculationTime, this, std::placeholders::_1),
-      std::bind(&IPathPlanner::getCalculationTime, this));
-    declareProperty<double>("Step-Size",
-      std::bind(&IPathPlanner::setStepSize, this, std::placeholders::_1),
-      std::bind(&IPathPlanner::getStepSize, this));
+    declareProperty<double>("Calc-Time", MUK_SET(double, setCalculationTime), MUK_GET(getCalculationTime));
+    declareProperty<double>("Step-Size", MUK_SET(double, setStepSize), MUK_GET(getStepSize));
+    declareProperty<bool>  ("Verbose",   MUK_SET(bool,   setVerbose), MUK_GET(getVerbose));
   }
 
   /**

@@ -8,9 +8,10 @@ namespace gris
 {
   namespace muk
   {
-    /** \brief Abstraction for a Goal/Start-State
+    /** \brief A state region representing multiple position and direction with additional deviations (experimental).
 
-    atm, only this sphere like region is implemented
+      Atm, the radius is not used and #getStates returns only states at given positions.
+      The #resolution parameter is used to sample from [0,phi] in polar coordinates, making different directions possible.
     */
     class MUK_COMMON_API MultiPortStateRegion : public IStateRegion
     {
@@ -18,25 +19,26 @@ namespace gris
         MultiPortStateRegion();
         virtual ~MultiPortStateRegion() = default;
 
-        static  const char* s_name()     { return "MultiPortStateRegion";  }
-        virtual const char* name() const { return s_name(); }
+      public:
+        static  const char* s_name()              { return "MultiPortStateRegion";  }
+        virtual const char* name() const override { return s_name(); }
 
       public:
-        void   setNumberOfStates(size_t n)       { mStates.resize(n); }
-        size_t getNumberOfStates()         const { return mStates.size(); }
-        void   setState  (size_t idx, const MukState& s);
-        void   setRadius (double val)             { mRadius = val; }
-        void   setPhi    (double val);
-        void   setResolution (unsigned int val)   { mResolution = val; }
-
-        double          getRadius()     const { return mRadius; }
-        double          getPhi()        const { return mPhi; }
-        unsigned int    getResolution() const { return mResolution; }
-
-        const MukState& getCenter()     const { return mStates.front(); }
+        virtual std::vector<MukState>         getStates() const override;
+        virtual std::unique_ptr<IStateRegion> clone()     const override;
 
       public:
-        virtual std::vector<MukState> getStates() const;
+        void            setNumberOfStates(size_t n)       { mStates.resize(n); }
+        void            setState  (size_t idx, const MukState& s);
+        void            setRadius (double val)            { mRadius = val; }
+        void            setPhi    (double val);
+        void            setResolution (unsigned int val)  { mResolution = val; }
+
+        size_t          getNumberOfStates()         const { return mStates.size(); }
+        double          getRadius()                 const { return mRadius; }
+        double          getPhi()                    const { return mPhi; }
+        unsigned int    getResolution()             const { return mResolution; }
+        const MukState& getCenter()                 const { return mStates.front(); }
 
       private:
         std::vector<MukState> mStates;

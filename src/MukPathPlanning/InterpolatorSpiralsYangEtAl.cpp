@@ -1,5 +1,5 @@
 #include "private/muk.pch"
-#include "private/BezierSpiralInterpolator.h"
+#include "BezierSpiralInterpolator.h"
 
 #include "InterpolatorSpiralsYangEtAl.h"
 #include "InterpolatorLinear.h"
@@ -101,7 +101,7 @@ namespace gris
     */
     void InterpolatorSpiralsYangEtAl::interpolate()
     {
-      if (mInput.getPath().empty())
+      if (mInput.getStates().empty())
       {
         LOG_LINE << __FUNCTION__ << ": Unable to interpolate! The input MukPath has no states!";
         return;
@@ -109,7 +109,7 @@ namespace gris
       mInterpolated = true;
       mp->mValidSplinePoints.clear();
 
-      const auto& states = mInput.getPath();
+      const auto& states = mInput.getStates();
       const size_t N = states.size();
       const size_t M = N >= 3 ? N-2 : 0;
       mp->splines.resize(M);
@@ -130,8 +130,8 @@ namespace gris
     {
       IInterpolator::result_type result;
       result.setRadius(mInput.getRadius());
-      result.getPath().reserve(mInput.getPath().size());
-      std::copy(mInput.getPath().begin(), mInput.getPath().end(), back_inserter(result.getPath()));
+      result.getStates().reserve(mInput.getStates().size());
+      std::copy(mInput.getStates().begin(), mInput.getStates().end(), back_inserter(result.getStates()));
       return result;
     }
 
@@ -143,7 +143,7 @@ namespace gris
         throw MUK_EXCEPTION_SIMPLE("The Interpolator needs te be updated first!");      
       
       std::vector<Vec3d> points;
-      const auto& path = mInput.getPath(); // convenience
+      const auto& path = mInput.getStates(); // convenience
 
       if (type != controlPoints)
       {
@@ -186,10 +186,10 @@ namespace gris
         const auto& from =  hasSpline ?   mp->splines.back().sample(BezierSpline::E0)   :   path.front().coords;
         const auto& to = path.back().coords;
         MukPath resultLinear = type == pointsPerSegment  ?  computeLinearly(from, to, mPointsPerSegment) : computeLinearly(from, to, mResolution);
-        auto first = resultLinear.getPath().begin();
+        auto first = resultLinear.getStates().begin();
         if (hasSpline)
           ++first;
-        auto last  = resultLinear.getPath().end();
+        auto last  = resultLinear.getStates().end();
         std::transform(first, last, back_inserter(points), [&] (const MukState& state) { return state.coords; });
       }
 
@@ -197,7 +197,7 @@ namespace gris
       IInterpolator::result_type result;
       result.setRadius(mInput.getRadius());
       const size_t N = points.size();
-      auto& resPath  = result.getPath();
+      auto& resPath  = result.getStates();
       resPath.reserve(N);
       if (N >= 2)
       {  
@@ -253,10 +253,10 @@ namespace gris
       const auto& from = v.back();
       const auto& to = splines.front().sample(0);
       auto resultLinear = computeLinearly(from, to, mSamples);
-      if (resultLinear.getPath().size() > 2)
+      if (resultLinear.getStates().size() > 2)
       {
-        auto omitFirst = resultLinear.getPath().begin()+1;
-        auto omitLast = resultLinear.getPath().end()-1;
+        auto omitFirst = resultLinear.getStates().begin()+1;
+        auto omitLast = resultLinear.getStates().end()-1;
         std::transform(omitFirst, omitLast, back_inserter(v), [&] (const MukState& state) { return state.coords; });
       }
 
@@ -273,8 +273,8 @@ namespace gris
           const auto& from = splines[i].sample(BezierSpline::E0);
           const auto& to = splines[i+1].sample(BezierSpline::B0);
           auto resultLinear = computeLinearly(from, to, mSamples);
-          auto omitLast = resultLinear.getPath().end()-1;
-          std::transform(resultLinear.getPath().begin(), omitLast, back_inserter(v), [&] (const MukState& state) { return state.coords; });
+          auto omitLast = resultLinear.getStates().end()-1;
+          std::transform(resultLinear.getStates().begin(), omitLast, back_inserter(v), [&] (const MukState& state) { return state.coords; });
         }
       }
       // interpolation at end
@@ -303,10 +303,10 @@ namespace gris
         const auto& from = v.back();
         const auto& to   = splines.front().sample(0);
         auto resultLinear = computeLinearly(from, to, resolution);
-        if (resultLinear.getPath().size() > 2)
+        if (resultLinear.getStates().size() > 2)
         {
-          auto omitFirst = resultLinear.getPath().begin()+1;
-          auto omitLast = resultLinear.getPath().end()-1;
+          auto omitFirst = resultLinear.getStates().begin()+1;
+          auto omitLast = resultLinear.getStates().end()-1;
           std::transform(omitFirst, omitLast, back_inserter(v), [&] (const MukState& state) { return state.coords; });
         }
       }
@@ -323,8 +323,8 @@ namespace gris
           const auto& from = splines[i].sample(BezierSpline::E0);
           const auto& to   = splines[i+1].sample(BezierSpline::B0);          
           auto resultLinear = computeLinearly(from, to, resolution);
-          auto omitLast = resultLinear.getPath().end()-1;
-          std::transform(resultLinear.getPath().begin(), omitLast, back_inserter(v), [&] (const MukState& state) { return state.coords;} );
+          auto omitLast = resultLinear.getStates().end()-1;
+          std::transform(resultLinear.getStates().begin(), omitLast, back_inserter(v), [&] (const MukState& state) { return state.coords;} );
         }
       }
       // interpolation at end
@@ -349,8 +349,8 @@ namespace
   {    
     InterpolatorLinear linear;
     MukPath data;
-    data.getPath().push_back(MukState(start, Vec3d()));
-    data.getPath().push_back(MukState(end, Vec3d()));
+    data.getStates().push_back(MukState(start, Vec3d()));
+    data.getStates().push_back(MukState(end, Vec3d()));
     linear.setInput(data);
     linear.setPointsPerSegment(discretization);
     linear.setInterpolationType(IInterpolator::pointsPerSegment);
@@ -363,8 +363,8 @@ namespace
   {    
     InterpolatorLinear linear;
     MukPath data;
-    data.getPath().push_back(MukState(start, Vec3d()));
-    data.getPath().push_back(MukState(end, Vec3d()));
+    data.getStates().push_back(MukState(start, Vec3d()));
+    data.getStates().push_back(MukState(end, Vec3d()));
     linear.setInput(data);
     linear.setResolution(resolution);
     linear.setInterpolationType(IInterpolator::resolution);

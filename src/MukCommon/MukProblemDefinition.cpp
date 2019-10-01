@@ -21,11 +21,13 @@ namespace muk
     , mSafetyDist(0.5)
     , mKappa(0.05)
     , mGoalThreshold(1.0)
-    , mGoalAngleThreshold(M_PI_4)
+    , mGoalAngleThreshold(M_Pi_4)
   {
     appendProperties();
   }
 
+  /**
+  */
   MukProblemDefinition::MukProblemDefinition(MukProblemDefinition&& o)
   {
     if (this != &o)
@@ -44,6 +46,8 @@ namespace muk
     }
   }
 
+  /**
+  */
   void MukProblemDefinition::appendProperties()
   {
     declareProperty<double>("Radius",
@@ -257,6 +261,26 @@ namespace muk
     mGoalThreshold = other.mGoalThreshold;
     mGoalAngleThreshold = other.mGoalAngleThreshold;
     mBounds = other.mBounds;
+  }
+
+  /** \brief clones every member into target, thereby creating new state regions.
+
+    used to easily create a similar path collection, e.g. as in the case of replanning.
+  */
+  void MukProblemDefinition::clone(MukProblemDefinition& target) const
+  {
+    target.copyParameters(*this);
+    target.mWaypoints = mWaypoints;
+    for(const auto& p : mStart)
+    {
+      auto pNew = p->clone();
+      target.mStart.push_back(std::move(pNew));
+    }
+    for(const auto& p : mGoal)
+    {
+      auto pNew = p->clone();
+      target.mGoal.push_back(std::move(pNew));
+    }
   }
 
   /**

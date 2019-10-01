@@ -1,5 +1,4 @@
 #pragma once
-
 #include "muk_pathplanning_api.h"
 
 #include "MukCommon/IInterpolator.h"
@@ -8,7 +7,8 @@ namespace gris
 {
   namespace muk
   {
-
+    /**
+    */
     class MUK_PP_API InterpolatorLinear : public IInterpolator
     {
       public:
@@ -26,8 +26,8 @@ namespace gris
 
       public:
         using IInterpolator::getInterpolation;
-        virtual result_type getControlPoints()            const;        
-        virtual std::vector<bool> validStates() const;
+        virtual result_type       getControlPoints()  const;        
+        virtual std::vector<bool> validStates()       const;
 
       protected:
         virtual result_type getInterpolation(EnInterpolationTypes) const;
@@ -35,6 +35,5 @@ namespace gris
       private:
         mutable size_t mNumelResult;
     };
-
   }
 }

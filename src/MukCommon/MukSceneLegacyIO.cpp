@@ -10,7 +10,7 @@
 #include "version.h"
 
 #include "PlannerFactory.h"
-#include "PrunerFactory.h"
+#include "OptimizerFactory.h"
 #include "InterpolatorFactory.h"
 #include "NavigatorFactory.h"
 
@@ -207,7 +207,7 @@ namespace muk
     node = configNode.getChild("Planning").getChild("Pruner");
     {
       auto tmp = node.getChild("Type");
-      auto pruner = GetPrunerFactory().create(tmp.getValue());
+      auto pruner = GetOptimizerFactory().create(tmp.getValue());
       tmp = node.getChild("MaxStepSize");
       pruner->setMaxStepSize(std::atof(tmp.getValue()));
       tmp = node.getChild("MaxDistance");

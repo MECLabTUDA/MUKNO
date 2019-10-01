@@ -1,6 +1,6 @@
 #include "private/muk.pch"
 #include "SystemCalibration.h"
-#include "muk_common.h"
+#include "vtk_tools.h"
 
 #include <vtkSmartPointer.h>
 #include <vtkMetaImageReader.h>
@@ -39,7 +39,7 @@ namespace muk
       throw std::exception(tmp.str().c_str());
     }
 
-    DefVtk(vtkMetaImageReader, reader);    
+    auto reader = make_vtk<vtkMetaImageReader>();
     reader->SetFileName(path.string().c_str());
     reader->Update();
     double* spacing = reader->GetDataSpacing();
@@ -63,7 +63,7 @@ namespace muk
       throw std::exception(tmp.str().c_str());
     }
 
-    DefVtk(vtkMetaImageReader, reader);
+    auto reader = make_vtk<vtkMetaImageReader>();
     reader->SetFileName(path.string().c_str());
     reader->Update();
     double* spacing_ = reader->GetDataSpacing();

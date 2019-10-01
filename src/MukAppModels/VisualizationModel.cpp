@@ -9,6 +9,7 @@
 #include "MukCommon/PathCollection.h"
 #include "MukCommon/MukException.h"
 #include "MukCommon/MukStringToolkit.h"
+#include "MukCommon/muk_dynamic_property_tools.h"
 
 #include "MukVisualization/CameraConfiguration.h"
 #include "MukVisualization/muk_colors.h"
@@ -25,6 +26,9 @@
 #include "MukVisualization/VisVector.h"
 
 #include "MukQt/muk_qt_tools.h"
+#include "MukQt/MukQMenuBar.h"
+#include "MukQt/MukQToolBar.h"
+#include "MukQt/TabNavigation.h"
 #include "MukQt/VTKWindow.h"
 #include "MukQt/MedicalMultiViewWidget.h"
 
@@ -50,10 +54,16 @@ namespace muk
     , mpVisScene(std::make_unique<VisScene>())    
     , mDefaultView(std::make_shared<CameraConfiguration>())
     , mDefaultViewSet(false)
+    , mDefaultPathTopology(VisMukPath::Lines)
   {
     declareProperty<CameraConfiguration>("Camera"
       , [&] (const CameraConfiguration& config) { setCameraConfiguration(config); }
       , [&] ()                                  { return getCameraConfiguration(); });
+
+    declareProperty<VisMukPath::EnTopology>("DefaultPathTopology", 
+      MUK_D_SET(VisMukPath::EnTopology, mDefaultPathTopology), MUK_D_GET(mDefaultPathTopology));
+    declareProperty<bool>("OrientationMarkerVisibility", 
+      MUK_SET(bool, setOrientationMarkerVisibility), MUK_GET(getOrientationMarkerVisibility));
   }
 
   /**
@@ -67,6 +77,20 @@ namespace muk
   void VisualizationModel::reset()
   {
     mpVisScene->reset();
+  }
+
+  /**
+  */
+  void VisualizationModel::setOrientationMarkerVisibility(bool b)
+  {
+    mpVisWindow->get3DWindow()->setOrientationMarkerVisibility(b);
+  }
+
+  /**
+  */
+  bool VisualizationModel::getOrientationMarkerVisibility() const
+  {
+    return mpVisWindow->get3DWindow()->getOrientationMarkerVisibility();
   }
   
   /**
@@ -118,9 +142,10 @@ namespace muk
       pInterpolator->setInput(path);
       pInterpolator->interpolate();
       auto pathInterpolated = pInterpolator->getInterpolation();
+      pVis->setTopology(mDefaultPathTopology);
       pVis->setData(pathInterpolated);
-    pVis->setRenderer(mpVisWindow->get3DWindow()->getRenderer());
-    pVis->update();
+      pVis->setRenderer(mpVisWindow->get3DWindow()->getRenderer());
+      pVis->update();
     }
     mpVisScene->getPathCollection(name)->addMukPath(pVis);
     //mpVisWindow->get3DWindow()->Render();
@@ -399,6 +424,13 @@ namespace muk
         addObstacle(key);
       }
     }
+    for (const auto& key : viskeys)
+    {
+      if (std::none_of(scenekeys.begin(), scenekeys.end(), [&] (const auto& str) { return key == str; }))
+      {
+        deleteObstacle(key);
+      }
+    }
     // synchronize pathcollections
     scenekeys = scene.getPathKeys();
     viskeys   = mpVisScene->getPathCollectionKeys();
@@ -507,7 +539,7 @@ namespace muk
 
     auto path = mpScene->getInterpolator()->getInterpolation();
 
-    N = path.getPath().size();
+    N = path.getStates().size();
     if (stateIdx >= N)
     {
       std::string str1 = (boost::format("Requested State-Index does not exist in the Path")).str();
@@ -515,7 +547,7 @@ namespace muk
       throw MUK_EXCEPTION(str1.c_str(), str2.c_str());
     }
     auto& pObj = mpVisScene->getRobot();
-    pObj.setState(path.getPath()[stateIdx]);
+    pObj.setState(path.getStates()[stateIdx]);
     render();
   }
 

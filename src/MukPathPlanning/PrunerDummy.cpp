@@ -3,7 +3,7 @@
 
 #include "MukCommon/MukException.h"
 #include "MukCommon/geometry.h"
-#include "MukCommon/PrunerFactory.h"
+#include "MukCommon/OptimizerFactory.h"
 
 #include <Eigen/Dense>
 
@@ -27,7 +27,7 @@ namespace gris
 {
 namespace muk
 {
-  REGISTER_PRUNER(PrunerDummy);
+  REGISTER_OPTIMIZER(PrunerDummy);
   
   /**
   */
@@ -43,18 +43,9 @@ namespace muk
 
   /**
   */
-  MukPath PrunerDummy::calculate(const MukPath& input)
+  MukPath PrunerDummy::calculate(const MukPath& input) const
   {
     return input;
-  }
-
-  /**
-  */
-  void PrunerDummy::clone(const IPathPruner* pOther)
-  {
-    setKappa(pOther->getKappa());
-    setMaxDistance(pOther->getMaxDistance());
-    setMaxStepSize(pOther->getMaxStepSize());
   }
 }
 }

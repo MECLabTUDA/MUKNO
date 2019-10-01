@@ -3,33 +3,81 @@ project(MukQt)
 set(INC_DIR ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME}/)
 
 set(Includes		
+	${INC_DIR}/AlgConnection.h
+	${INC_DIR}/AlgGraphicsView.h
+	${INC_DIR}/AlgItem.h
+	${INC_DIR}/AlgItemHandler.h
+	${INC_DIR}/AlgPort.h
+	${INC_DIR}/BoxPlots.h
 	${INC_DIR}/Cursor3DSynchronizer.h
 	${INC_DIR}/MedicalMultiViewWidget.h
 	${INC_DIR}/muk_qt_api.h	
 	${INC_DIR}/muk_qt_tools.h
+	${INC_DIR}/MuknoPlannerMainWindow.h		
+	${INC_DIR}/MukPlot.h
+	${INC_DIR}/MukQMenuBar.h
+	${INC_DIR}/MukQRightClickMenu.h	
+	${INC_DIR}/MukQToolbar.h
+	${INC_DIR}/MultipleDoubleVectorPlot.h
+	${INC_DIR}/ProblemDefinitionWidget.h
+	${INC_DIR}/PropertyWidget.h
+	${INC_DIR}/QuickPathAnalysisWindow.h
+	${INC_DIR}/QuickPlanningConfigurationWindow.h
+	${INC_DIR}/SphereInteraction.h
+	${INC_DIR}/SceneWidget.h
 	${INC_DIR}/SliceWidget.h
+	${INC_DIR}/TabImaging.h
+	${INC_DIR}/TabNavigation.h
+	${INC_DIR}/TabPlanning.h
+	${INC_DIR}/TabSelection.h
 	${INC_DIR}/VolumeWidget.h
 	${INC_DIR}/VtkWindow.h
 	)
 
 set(Private_Includes
+	${INC_DIR}private/DirectionInteractionStyle.h
 	${INC_DIR}private/muk.pch
+	${INC_DIR}private/ParameterNet.h
 	${INC_DIR}private/SliceSynchronizer.h
 	${INC_DIR}private/SliceInteractorStyle.h
 	)
 
 set(Sources
+	AlgConnection.cpp
+	AlgGraphicsView.cpp
+	AlgItem.cpp
+	AlgItemHandler.cpp
+	AlgPort.cpp
+	BoxPlots.cpp
 	Cursor3DSynchronizer.cpp
+	DirectionInteractionStyle.cpp
 	MedicalMultiViewWidget.cpp
 	muk.cpp	
 	muk_qt_tools.cpp
+	MuknoPlannerMainWindow.cpp
+	MukPlot.cpp
+	MukQMenuBar.cpp
+	MukQRightClickmenu.cpp
+	MukQToolbar.cpp
+	MultipleDoubleVectorPlot.cpp
+	QuickPathAnalysisWindow.cpp
+	QuickPlanningConfigurationWindow.cpp
+	ParameterNet.cpp
+	ProblemDefinitionWidget.cpp
+	PropertyWidget.cpp
 	VolumeWidget.cpp
+	SceneWidget.cpp
 	SliceWidget.cpp
+	SphereInteraction.cpp
+	TabImaging.cpp
+	TabNavigation.cpp
+	TabPlanning.cpp
+	TabSelection.cpp
 	VtkWindow.cpp
 	)
   
 # configure the resource file
-gris_configure_resource_rc(Resources MuknoII Qt ${MODULE_NAME})
+gris_configure_resource_rc(Resources MuknoII Qt ${PROJECT_NAME})
 
 # QT stuff
 set(CMAKE_AUTOMOC ON)
@@ -67,6 +115,7 @@ target_link_libraries(${PROJECT_NAME}
 	MukCommon
 	MukPathPlanning
 	MukVisualization
+	QCustomPlot
 	${VTK_LIBRARIES}
 	${BOOST_TARGETS}
 	${Muk_Qt_Modules}
@@ -75,6 +124,8 @@ target_link_libraries(${PROJECT_NAME}
 source_group("Header Files\\private" FILES
 	${Private_Includes}
 	)
+	
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER ${MODULE_NAME})
   
 # usage of Qt with cmake: http://doc.qt.io/qt-5/cmake-manual.html
 # qt5_use_modules(${PROJECT_NAME} Widgets) --> this is for cmake < 2.8 
@@ -84,4 +135,6 @@ add_definitions(-DMUK_QT_CREATE_DLL)
 
 gris_deploy(${PROJECT_NAME} "${MuknoII_BIN_DIR}" "")
 
-gris_deploy_files(${PROJECT_NAME} "${MuknoII_BIN_DIR}/platforms" "${QT_DIR}/plugins/platforms/qwindows.dll")
+#gris_deploy_directories(${PROJECT_NAME} "${MuknoII_Resources_DIR}/icons" "${CMAKE_SOURCE_DIR}/resources/icons")
+
+#gris_deploy_files(${PROJECT_NAME} "${MuknoII_BIN_DIR}/platforms" "${QT_DIR}/plugins/platforms/qwindows.dll")

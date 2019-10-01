@@ -15,8 +15,8 @@ namespace gris
   {
     /** \brief Combination of a Motion Planning Problem Definition and paths that were successfully created
       
-        A PathCollection (the name is stupid now) can basically seen as the representation of the planning of an access path.
-        Its problem defintion describes parameters, the paths possible solutions from which the surgeon can pick one.
+        A PathCollection (the name is stupid now) can basically be seen as the representation of the planning of an access path.
+        Its problem defintion describes parameters, the paths possible solutions from which the surgeon can pick one and some experimental data.
     */
     class MUK_COMMON_API PathCollection : public gstd::DynamicProperty
     {
@@ -49,7 +49,8 @@ namespace gris
         std::vector<std::string>&       getInactiveObstacles()       { return mInactiveObstacles; };
 
       public:
-        void swap(PathCollection& o);
+        void swap  (PathCollection& o);
+        void mirror(PathCollection& target) const;
 
       private:
         void appendProperties();

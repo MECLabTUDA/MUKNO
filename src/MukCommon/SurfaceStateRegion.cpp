@@ -38,6 +38,17 @@ namespace muk
     return result;
   }
 
+  /**
+  */
+  std::unique_ptr<IStateRegion> SurfaceStateRegion::clone() const
+  {
+    auto pObj = std::make_unique<SurfaceStateRegion>();
+    pObj->mSurfacePoints      = mSurfacePoints;
+    pObj->mDirectionAncor     = mDirectionAncor;
+    pObj->mPointsTowardsAncor = mPointsTowardsAncor;
+    return std::move(pObj);
+  }
+
 
   /**
   */

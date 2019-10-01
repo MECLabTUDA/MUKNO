@@ -25,9 +25,11 @@ namespace gris
         std::bind(&Bounds::getMin, this));
     }
  
-    /**
+    /** \brief increases the bounding box so the passed boundingbox lies within.
+
+      \param[in] d pointer to six doubles (xmin, xmax, ymin, ymax, zmin, zmax)
     */
-    void Bounds::update(double* d)
+    void Bounds::update(double d[6])
     {
       if (nullptr!=d)
       {
@@ -40,11 +42,29 @@ namespace gris
       }
     }
 
+    /** \brief increases the bounding box so the passed point lies within.
+
+      \param[in] p a 3D point
+    */
+    void Bounds::update(const Vec3d& p)
+    {
+      mMin.x() = std::min(mMin.x(), p.x());
+      mMin.y() = std::min(mMin.y(), p.y());
+      mMin.z() = std::min(mMin.z(), p.z());
+      mMax.x() = std::max(mMax.x(), p.x());
+      mMax.y() = std::max(mMax.y(), p.y());
+      mMax.z() = std::max(mMax.z(), p.z());
+    }
+
+    /** \brief returns if the position of the passed state lies within the boundingbox.
+    */
     bool Bounds::isInside(const MukState& state) const
     {
       return isInside(state.coords);
     }
 
+    /** \brief returns if the position of the passed point lies within the boundingbox.
+    */
     bool Bounds::isInside(const Vec3d& position) const
     {
       return mMin.x() < position.x() && mMax.x() > position.x()

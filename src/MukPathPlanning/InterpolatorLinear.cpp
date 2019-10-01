@@ -15,7 +15,7 @@ namespace muk
   */
   void InterpolatorLinear::interpolate()
   { 
-    if (mInput.getPath().empty())
+    if (mInput.getStates().empty())
     {
       LOG_LINE << __FUNCTION__ << ": Unable to interpolate! The input MukPath has no states!";
       return;
@@ -41,14 +41,10 @@ namespace muk
   */
   IInterpolator::result_type InterpolatorLinear::getInterpolation(EnInterpolationTypes type) const
   {
-    if ( ! mInterpolated )
-      throw MUK_EXCEPTION_SIMPLE("The Interpolator needs te be updated first!");    
-
     IInterpolator::result_type result;
-    
-    const auto&  input   = mInput.getPath();
+    const auto&  input   = mInput.getStates();
     const size_t N       = input.size();
-    auto&        path    = result.getPath();
+    auto&        path    = result.getStates();
     mNumelResult = 0;
     switch (type)
     {
@@ -56,7 +52,7 @@ namespace muk
       case samples:
       {
         result = getControlPoints();
-        mNumelResult = result.getPath().size();
+        mNumelResult = result.getStates().size();
         break;
       }
       case pointsPerSegment:

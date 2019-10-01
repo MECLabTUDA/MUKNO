@@ -6,9 +6,10 @@
 
 #include "PlannerSplineBasedRRTconnect.h"
 
+#include "MukCommon/muk_dynamic_property_tools.h"
 #include "MukCommon/MukException.h"
-#include "MukCommon/PlannerFactory.h"
 #include "MukCommon/MukProblemDefinition.h"
+#include "MukCommon/PlannerFactory.h"
 
 namespace
 {
@@ -27,11 +28,15 @@ namespace gris
       : OmplPlanner()
       , mGoalBias(0.05)
       , mNearestBallRadius(1.0)
-      , mConnectionRange(2.0)
+      , mConeLength(5.0)
+      , mConeRadius(2.0)
+      , mMaxChildren(20)
     { 
       declareProperty<double>("GoalBias", [&] (double d) { setGoalBias(d); }, [&] () { return getGoalBias(); });
       declareProperty<double>("NearestBallRadius", [&] (double d) { setNearestBallRadius(d); }, [&] () { return getNearestBallRadius(); });
-      declareProperty<double>("Connection_Range", [&] (double d) { setConnectionRange(d); }, [&] () { return getConnectionRange(); });
+      declareProperty<double>("ConeLength", MUK_SET(double, setConeLength), MUK_GET(getConeLength));
+      declareProperty<double>("ConeRadius", MUK_SET(double, setConeRadius), MUK_GET(getConeRadius));
+      declareProperty<size_t>("MaxChildren", MUK_D_SET(size_t, mMaxChildren), MUK_D_GET(mMaxChildren));
     }
 
     /**
@@ -59,13 +64,15 @@ namespace gris
     bool PlannerSplineBasedRRTconnect::calculate()
     {
       ob::PlannerStatus solved = mpPlanner->solve(mCalculationTime);
-
-      if (solved == ob::PlannerStatus::StatusType::EXACT_SOLUTION)
-        LOG_LINE << "PlannerSplineBasedRRTconnect: Solution Found!";
-      else if (solved == ob::PlannerStatus::StatusType::APPROXIMATE_SOLUTION)
-        LOG_LINE << "PlannerSplineBasedRRTconnect: Approximate Solution Found!";
-      else
-        LOG_LINE << "PlannerSplineBasedRRTconnect: Could not find Solution";
+      if (mVerbose)
+      {
+        if (solved == ob::PlannerStatus::StatusType::EXACT_SOLUTION)
+          LOG_LINE << "PlannerSplineBasedRRTconnect: Solution Found!";
+        else if (solved == ob::PlannerStatus::StatusType::APPROXIMATE_SOLUTION)
+          LOG_LINE << "PlannerSplineBasedRRTconnect: Approximate Solution Found!";
+        else
+          LOG_LINE << "PlannerSplineBasedRRTconnect: Could not find Solution";
+      }
       return solved == ob::PlannerStatus::StatusType::EXACT_SOLUTION;
     }
 
@@ -84,10 +91,13 @@ namespace gris
       {
         mpPlanner->setKappa(pProbDef->getKappa());
       }
+      mpPlanner->setVerbose(mVerbose);
       mpPlanner->setStepSize(mStepSize);
       mpPlanner->setGoalBias(mGoalBias);
       mpPlanner->setNearestBallRadius(mNearestBallRadius);
-      mpPlanner->setConnectionRange(mConnectionRange);
+      mpPlanner->setConeLength(mConeLength);
+      mpPlanner->setConeRadius(mConeRadius);
+      mpPlanner->setMaxChildren(mMaxChildren);
     }
 
     /**
@@ -150,7 +160,9 @@ namespace gris
         return graph;
       }
       else
+      {
         return MukPathGraph();
+      }
     }
 
     size_t PlannerSplineBasedRRTconnect::availablePaths() const
