@@ -5,6 +5,8 @@
 #include "PolyDataHandler.h"
 #include "muk_colors.h"
 
+#include "MukCommon/vtk_tools.h"
+
 #include <vtkActor.h>
 #include <vtkArrowSource.h>
 #include <vtkPoints.h>

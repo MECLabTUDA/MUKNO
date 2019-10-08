@@ -71,7 +71,6 @@ namespace muk
     const double        maxDist = std::numeric_limits<double>::infinity();
     MukPath             currentPath;
     bool ctFileLoaded = false;
-    bool advancedOptionsRequested = false;
     std::vector<size_t> filteredPaths;
     std::vector<std::string> activeObstacles;
 
@@ -93,6 +92,7 @@ namespace muk
     std::vector<size_t>  boneOrder;
     std::vector<size_t>  airholeOrder;
     std::vector<std::vector<double>> minDistToEachObstacle;
+    std::vector<std::vector<size_t>> minDistToEachObstacleOrder;
   };
 
   /**
@@ -108,12 +108,15 @@ namespace muk
   {
   }
 
+  const std::vector<std::vector<double>>& SelectionModel::getMinDistToEachObstacle() const { return mp->minDistToEachObstacle; }
   const std::vector<double>& SelectionModel::getDistances()         const { return mp->distances; }
   const std::vector<double>& SelectionModel::getCurvatures()        const { return mp->curvatures; }
   const std::vector<double>& SelectionModel::getLengths()           const { return mp->lengths; }
   const std::vector<double>& SelectionModel::getGoalAngles()        const { return mp->goalAngles; }
   const std::vector<double>& SelectionModel::getBoneThickness()     const { return mp->bonethickness; }
   const std::vector<double>& SelectionModel::getAirHoles()          const { return mp->airholes; }
+
+  const std::vector<std::vector<size_t>>& SelectionModel::getMinDistToEachObstacleOrder() const { return mp->minDistToEachObstacleOrder; }
   const std::vector<size_t>& SelectionModel::getDistanceOrder()     const { return mp->distanceOrder; }
   const std::vector<size_t>& SelectionModel::getCurvatureOrder()    const { return mp->curvatureOrder; }
   const std::vector<size_t>& SelectionModel::getLengthOrder()       const { return mp->lengthOrder; }
@@ -121,7 +124,7 @@ namespace muk
   const std::vector<size_t>& SelectionModel::getBoneOrder()         const { return mp->boneOrder; }
   const std::vector<size_t>& SelectionModel::getAirholesOrder()     const { return mp->airholeOrder; }
 
-  /** \brief Loads internal data of the active path collection. For computation call "compute".
+  /** \brief loads necessary data of the active path collection
   */
   void SelectionModel::loadPathCollection(const std::string& key)
   {
@@ -183,17 +186,24 @@ namespace muk
     auto setCanals = std::vector<bool>(mp->accessCanalCount, false);
     auto accessCanals = mp->current->selectedIndices;
     // checks which canals were already set
+    std::vector<size_t> pathsForCalc = mp->filteredPaths;
     for (size_t i(0); i < accessCanals.size(); i++)
+    {
       if (accessCanals[i] != -1)
+      {
         setCanals[i] = true;
+        pathsForCalc.insert(pathsForCalc.begin() + accessCanals[i], accessCanals[i]);
+      }
+    }
     const auto& key = mpModels->pPlanningModel->getActivePathCollection();
     const auto pVisColl = mpModels->pVisModel->getVisScene()->getPathCollection(key);
     auto goalThreshold = mpModels->pAppModel->getScene()->getPathCollection(key).getProblemDefinition()->getGoalThreshold();
-    auto pointsOnCircle = std::vector<Vec3d>(mp->filteredPaths.size(), Vec3d(0, 0, 0));
+    auto pointsOnCircle = std::vector<Vec3d>(pathsForCalc.size(), Vec3d(0, 0, 0));
     // gets the state which is goalThreshold away from endState of every path
-    for (size_t i(0); i < mp->filteredPaths.size(); i++)
+    for (size_t i(0); i < pathsForCalc.size(); i++)
     {
-      auto currentPath = pVisColl->getMukPath(mp->filteredPaths[i])->asMukPath().getStates();
+      //auto currentPath = pVisColl->getMukPath(mp->filteredPaths[i])->asMukPath().getStates();
+      auto currentPath = pVisColl->getMukPath(pathsForCalc[i])->asMukPath().getStates();
       pointsOnCircle[i] = currentPath[determineCutOffState(currentPath, startState, goalThreshold)].coords;
     }
     std::vector<size_t> bestSelection = { 0,0,0};
@@ -201,20 +211,20 @@ namespace muk
     auto bestArea = 0.0;
     auto currentArea = 0.0;
     // when a Canal was already set the for-loop will run only once with i being the Index of the path set as the Canal
-    for (size_t i(setCanals[0] ? accessCanals[0] : 0); i < (setCanals[0] ? accessCanals[0] + 1 : mp->filteredPaths.size()); i++)
+    for (size_t i(setCanals[0] ? accessCanals[0] : 0); i < (setCanals[0] ? accessCanals[0] + 1 : pathsForCalc.size()); i++)
     {
-      for (size_t j(setCanals[1] ? accessCanals[1] : 0); j < (setCanals[1] ? accessCanals[1] + 1 : mp->filteredPaths.size()); j++)
+      for (size_t j(setCanals[1] ? accessCanals[1] : 0); j < (setCanals[1] ? accessCanals[1] + 1 : pathsForCalc.size()); j++)
       {
         // no need to check combination where two indices are the same
         if (j == i)
           continue;
-        for (size_t k(setCanals[2] ? accessCanals[2] : 0); k < (setCanals[2] ? accessCanals[2] + 1 : mp->filteredPaths.size()); k++)
+        for (size_t k(setCanals[2] ? accessCanals[2] : 0); k < (setCanals[2] ? accessCanals[2] + 1 : pathsForCalc.size()); k++)
         {
           if (k == j || k == i)
             continue;
           //loads i in the first, j in the second and k in the third index of currentSelection
           for (size_t l(0); l < mp->accessCanalCount; l++)
-            currentSelection[l] = pointsOnCircle[l == 0 ? mp->filteredPaths[i] : (l == 1 ? j : k)];
+            currentSelection[l] = pointsOnCircle[l == 0 ? pathsForCalc[i] : (l == 1 ? j : k)];
           // area of an triangle in 3D: 0.5 * || AB - AC ||
           currentArea = 0.5 * ((currentSelection[1] - currentSelection[0]).cross(currentSelection[2] - currentSelection[0])).norm();
           if (currentArea > bestArea)
@@ -236,7 +246,7 @@ namespace muk
     auto alpha = acos((cos(a) - cos(b)*cos(c)) / (sin(b)*sin(c))); // the angle <CAB on the sphere
     auto beta = acos((cos(b) - cos(a)*cos(c)) / (sin(a)*sin(c))); // the angle <ABC on the sphere
     auto gamma = acos((cos(c) - cos(a)*cos(b)) / (sin(a)*sin(b))); // the angle <BCA on the sphere 
-    auto Area = pow(goalThreshold, 2) * (alpha + beta + gamma - M_Pi); // the Area of the triangle on the sphere
+    auto Area = pow(goalThreshold, 2) * (alpha + beta + gamma - M_PI); // the Area of the triangle on the sphere
     LOG_LINE << "Area of the spherical triangle: " << Area << " mm² and of the flat triangle: " << bestArea << " mm²";
     // if a canal was set before it wont be set again (as that would unset the canal instead)
     for(size_t i(0); i < mp->accessCanalCount; i++)
@@ -288,6 +298,7 @@ namespace muk
   void SelectionModel::makeSelection(const std::string& key)
   {
     mp->selections.insert(std::make_pair(key, Selection()));
+    //std::vector<std::tuple<int, int, int
   }
 
   /**
@@ -301,6 +312,8 @@ namespace muk
   }
 
   /** \brief Computes all available properties of existing paths
+
+    
   */
   void SelectionModel::compute()
   {
@@ -345,11 +358,18 @@ namespace muk
     #pragma omp parallel for
     for (int i(0); i < (int)N; ++i)
     {
-      auto interpolatedPath = interpolatedPaths[i];
+	  /*auto interpolatedPath = interpolatedPaths[i];
       auto dists = computeDistances(*mpModels->pAppModel->getScene()->getCollisionDetector(), interpolatedPath.getStates(), interpolatedPath.getRadius());
       mp->distances[i]  = *std::min_element(dists.begin(), dists.end());
       mp->curvatures[i] = pEval.pathStraightness(interpolatedPath.getStates());
       mp->goalAngles[i] = pEval.goalAngleDifference(paths[i].getStates().back(), pScene->getPathCollection(key).getProblemDefinition()->getGoalStates());
+      mp->lengths[i] = computeLength(interpolatedPath.getStates());
+      */
+      const auto interpolatedPath = pVisColl->getMukPath(i)->asMukPath();
+      auto dists = computeDistances(*mpModels->pAppModel->getScene()->getCollisionDetector(), interpolatedPath.getStates(), interpolatedPath.getRadius());
+      mp->distances[i] = *std::min_element(dists.begin(), dists.end());
+      mp->curvatures[i] = pEval.pathStraightness(interpolatedPath.getStates());
+      mp->goalAngles[i] = pEval.goalAngleDifference(paths[i].getStates().front(), pScene->getPathCollection(key).getProblemDefinition()->getStartStates());
       mp->lengths[i] = computeLength(interpolatedPath.getStates());
       if (mp->ctFileLoaded)
       {
@@ -359,18 +379,16 @@ namespace muk
         mp->airholes[i] = currentTextureSpecifics[2];
       }
     }
-    // only calculates the minDistToEachObstacle when the tab was set as large/window atleast once
-    // because it takes alot of time
-    if (mp->advancedOptionsRequested)
+    mp->minDistToEachObstacle = pEval.minDistToEachObst(*pVisColl, mp->filteredPaths);
+    mp->minDistToEachObstacleOrder.clear();
+    for (size_t i(0); i < mp->activeObstacles.size(); ++i)
     {
-      if (visAvailable)
+      auto* tempVec = new std::vector<double>;
+      for (size_t j(0); j < mp->minDistToEachObstacle.size(); ++j)
       {
-        mp->minDistToEachObstacle = pEval.minDistToEachObst(*pVisColl, mp->filteredPaths);
+        tempVec->push_back(mp->minDistToEachObstacle[j][i]);
       }
-      else
-      {
-        mp->minDistToEachObstacle = pEval.minDistToEachObst(interpolatedPaths, mp->filteredPaths);
-      }
+      mp->minDistToEachObstacleOrder.push_back(customSort(*tempVec, std::greater<double>()));
     }
     mp->distanceOrder   = customSort(mp->distances,   std::greater<double>());
     mp->curvatureOrder  = customSort(mp->curvatures,  std::less<double>());
@@ -387,25 +405,13 @@ namespace muk
   */
   SelectionModel::CurrentBest SelectionModel::getCurrentBest() const
   {
-    auto skip = selectedIndices();
-    {
-      // add the paths that were filtered out to the skip list
-      std::vector<size_t> invalidPaths;
+    std::vector<size_t> skip;
+      // add the paths that were filtered out to the skip list (includes paths set as AccessCanals)
       for (size_t i(0); i < mp->distanceOrder.size(); ++i)
       {
         if ((std::find(mp->filteredPaths.begin(), mp->filteredPaths.end(), i) == mp->filteredPaths.end()))
-          invalidPaths.push_back(i);
+          skip.push_back(i);
       }
-      skip.insert(skip.end(), invalidPaths.begin(), invalidPaths.end());
-      // so the upcoming if-clause works
-      std::unique(skip.begin(), skip.end());
-      // for some reason there might be a -1 in the list
-      skip.erase(std::remove_if(skip.begin(), skip.end(), [&] (size_t idx) { return idx == -1; } ), skip.end());
-      if (skip.size() == mp->filteredPaths.size())
-      {
-        throw MUK_EXCEPTION_SIMPLE("no more paths available");
-      }
-    }
     CurrentBest result;
 
     auto l_compare = [&] (const size_t idx) { return std::none_of(skip.begin(), skip.end(), [&] (size_t i) {return i==idx;} ); };
@@ -480,6 +486,13 @@ namespace muk
           roundDouble(mp->airholes[i], 5)      <= roundDouble(mp->componentFilters[5], 5)))
         mp->filteredPaths.push_back(i);
     }
+    // Don't show the paths that are set as Access canals. (Might want to change that, has pros and cons)
+    for (auto i : selectedIndices())
+    {
+      auto indexOfFound = std::find(mp->filteredPaths.begin(), mp->filteredPaths.end(), i);
+      if (indexOfFound != mp->filteredPaths.end())
+        mp->filteredPaths.erase(indexOfFound);
+    }
     return mp->filteredPaths;
   }
 
@@ -509,11 +522,7 @@ namespace muk
       throw MUK_EXCEPTION(err.c_str(), info.c_str());
     }
     std::vector<double> weightedDistances(numberOfPaths);
-    // for the distance weight either normal distance or weighted Distance is used depending on if advanced options were requested atleast once
-    if (mp->advancedOptionsRequested)
-    {
-      weightedDistances = pEval.weightedDistances(mp->minDistToEachObstacle, mp->obstacleWeights);
-    }
+    weightedDistances = pEval.weightedDistances(mp->minDistToEachObstacle, mp->obstacleWeights);
     std::vector<double> weightedDistancesCopy(weightedDistances);
     auto weightedOrder = customSort(weightedDistances, std::greater<double>());
     std::vector<double> distances(numberOfPaths);
@@ -526,14 +535,8 @@ namespace muk
     // for every path and every categorie calculates the relation from the pathValue to the best Value (not ideal for airholes because of values of 0)
     for (size_t i(0); i < numberOfPaths; ++i)
     {
-      if (mp->advancedOptionsRequested)
-      {
-        if (i != weightedOrder.front())
+      if (i != weightedOrder.front())
           weightedDistances[i] = weightedDistancesCopy[i] / weightedDistancesCopy[weightedOrder.front()] ;
-      }
-      else
-        if (i != theBest.distance.first)
-          distances[i] = mp->distances[i] / theBest.distance.second;
       if (i != theBest.curvature.first)
         curvatures[i] = theBest.curvature.second / mp->curvatures[i];
       if (i != theBest.angle.first)
@@ -546,10 +549,7 @@ namespace muk
         airholes[i] = theBest.airhole.second / mp->airholes[i];
     }
     // relation from best to best is 1 ofc
-    if (mp->advancedOptionsRequested)
-      weightedDistances[weightedOrder.front()] = 1;
-    else
-      distances[theBest.distance.first] = 1;
+    weightedDistances[weightedOrder.front()] = 1;
     curvatures[theBest.curvature.first] = 1;
     goalAngles[theBest.angle.first] = 1;
     lengths[theBest.length.first] = 1;
@@ -563,7 +563,7 @@ namespace muk
     {
       std::vector<double> pValues;
       // fills the Values with the ratios if the weights are set
-      pValues = { pEval.getCategoryWeightings()[0] > 0 ? (mp->advancedOptionsRequested ? weightedDistances[i] : distances[i]) : 0,
+      pValues = { pEval.getCategoryWeightings()[0] > 0 ? weightedDistances[i] : 0,
         pEval.getCategoryWeightings()[1] > 0 ? curvatures[i] : 0, 
         pEval.getCategoryWeightings()[2] > 0 ? goalAngles[i] : 0, 
         pEval.getCategoryWeightings()[3] > 0 ? lengths[i]    : 0 };
@@ -609,6 +609,8 @@ namespace muk
     mp->componentWeights = w;
   }
 
+  /**
+  */
   std::vector<double>& SelectionModel::getComponentWeights()
   {
     return mp->componentWeights;
@@ -621,55 +623,54 @@ namespace muk
     mp->obstacleWeights = w;
   }
 
+  /**
+  */
   std::vector<double>& SelectionModel::getObstacleWeights()
   {
     return mp->obstacleWeights;
   }
 
+  /**
+  */
   void SelectionModel::setComponentFilter(const std::vector<double>& w)
   {
     mp->componentFilters = w;
   }
 
+  /**
+  */
   std::vector<double>& SelectionModel::getComponentFilter()
   {
     return mp->componentFilters;
   }
 
+  /**
+  */
   void SelectionModel::setObstacleFilter(const std::vector<double>& w)
   {
     mp->obstacleFilters = w;
   }
 
+  /**
+  */
   std::vector<double>& SelectionModel::getObstacleFilter()
   {
     return mp->obstacleFilters;
   }
 
+  /**
+  */
   std::vector<size_t>& SelectionModel::getFilteredPaths()
   {
     return mp->filteredPaths;
   }
 
+  /**
+  */
   void SelectionModel::setActiveObstacles(const std::vector<std::string>& w)
   {
     mp->activeObstacles = w;
     mp->obstacleCount = w.size();
-  }
-
-  void SelectionModel::setAdvancedOptionsRequested(bool requested)
-  {
-    mp->advancedOptionsRequested = requested;
-  }
-
-  bool SelectionModel::getAdvancedOptionsRequested()
-  {
-    return mp->advancedOptionsRequested;
-  }
-
-  std::vector<std::vector<double>>& SelectionModel::getMinDistToEachObst()
-  {
-    return mp->minDistToEachObstacle;
   }
 
   /** \brief loads the current chosen path in the cache

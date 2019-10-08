@@ -2,6 +2,7 @@
 #include "private/ArrowMaker.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkMath.h>
 #include <vtkMatrix4x4.h>

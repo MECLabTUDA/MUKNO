@@ -26,6 +26,7 @@ namespace gris
     class TabSelection;
 
     /** \brief performs the selection process. Provides functions for visualization of differences between paths and highlighting of specific paths.
+      Moritz: Also calculates which paths are the best for the 3 Accesscanals 
     */
 		class MUK_APP_API SelectionModel : public BaseModel
 		{
@@ -51,8 +52,6 @@ namespace gris
       public:
         void loadPathCollection(const std::string&);
         void setAccessCanal(size_t canalIdx, size_t pathIdx);
-        std::vector<size_t> determineBestCanals(MukState startState);
-        size_t determineCutOffState(std::vector<MukState> path, MukState startState, double cutOffDistance);
         
         bool hasSelection(const std::string& key);
         void makeSelectionValid(const std::string& key, size_t numMaxPaths);
@@ -60,6 +59,7 @@ namespace gris
         void reset(const std::string& key);
         std::vector<size_t> selectedIndices() const;
 
+        const std::vector<std::vector<double>>& getMinDistToEachObstacle() const;
         const std::vector<double>& getDistances() const;
         const std::vector<double>& getCurvatures() const;
         const std::vector<double>& getLengths() const;
@@ -67,6 +67,7 @@ namespace gris
         const std::vector<double>& getBoneThickness() const;
         const std::vector<double>& getAirHoles() const;
 
+        const std::vector<std::vector<size_t>>& getMinDistToEachObstacleOrder() const;
         const std::vector<size_t>& getDistanceOrder() const;
         const std::vector<size_t>& getCurvatureOrder() const;
         const std::vector<size_t>& getLengthOrder() const;
@@ -90,13 +91,14 @@ namespace gris
         std::vector<double>& getObstacleFilter();
         std::vector<size_t>& getFilteredPaths();
         void setActiveObstacles(const std::vector<std::string>& w);
-        void setAdvancedOptionsRequested(bool requested);
-        bool getAdvancedOptionsRequested();
-        std::vector<std::vector<double>>& getMinDistToEachObst();
+
         std::vector<size_t>& filterPaths();
         size_t  evaluatePaths();
         void           loadPath(int idx);
         const MukPath* getLoadedPath() const;
+
+        std::vector<size_t> determineBestCanals(MukState startState);
+        size_t determineCutOffState(std::vector<MukState> path, MukState startState, double cutOffDistance);
 
         double roundDouble(double value, size_t decimals);
         

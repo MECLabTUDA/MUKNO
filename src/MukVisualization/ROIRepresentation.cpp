@@ -2,6 +2,7 @@
 #include "ROIRepresentation.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include "vtkActor.h"
 #include "vtkSphereSource.h"

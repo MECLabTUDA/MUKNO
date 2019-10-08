@@ -2,6 +2,7 @@
 #include "VisVector.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkArrowSource.h>
 #include <vtkActor.h>

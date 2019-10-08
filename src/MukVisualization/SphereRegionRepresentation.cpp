@@ -3,6 +3,7 @@
 
 #include "MukCommon/geometry.h"
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include "MukVisualization/muk_colors.h"
 
@@ -559,8 +560,8 @@ namespace
   {
     const auto n = Vec3d(1,0,0); // arrow source's fixed direction
     axis  = v.cross(n).normalized();
-    angle = -std::acos(std::abs(v.dot(n))) * 180 / gris::M_PI;
-    angle = -wideAngle(v,n) * 180 / gris::M_PI;
+    angle = -std::acos(std::abs(v.dot(n))) * 180 / gris::M_Pi;
+    angle = -wideAngle(v,n) * 180 / gris::M_Pi;
   }
 
   /** \brief computes the angle axis representation of a rotation from the sphere orientation onto the vector v
@@ -569,8 +570,8 @@ namespace
   {
     const auto n = Vec3d(0,0,1); // sphere source's fixed direction
     axis  = v.cross(n).normalized();
-    angle = -std::acos(std::abs(v.dot(n))) * 180 / gris::M_PI;
-    angle = -wideAngle(v,n) * 180 / gris::M_PI;
+    angle = -std::acos(std::abs(v.dot(n))) * 180 / gris::M_Pi;
+    angle = -wideAngle(v,n) * 180 / gris::M_Pi;
   }
 
   /**
@@ -593,6 +594,6 @@ namespace
     
     AngleAxisd rep;
     rep.fromRotationMatrix(R);
-    trafo.RotateWXYZ(rep.angle()*180/gris::M_PI, rep.axis().data());
+    trafo.RotateWXYZ(rep.angle()*180/gris::M_Pi, rep.axis().data());
   }
 }

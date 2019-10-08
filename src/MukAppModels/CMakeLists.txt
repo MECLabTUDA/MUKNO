@@ -10,6 +10,7 @@ set(Includes
 	${INC_DIR}BaseModel.h
 	${INC_DIR}LocalEnvironment.h
 	${INC_DIR}PlanningModel.h
+	${INC_DIR}PropertyModel.h
 	${INC_DIR}SelectionModel.h
 	${INC_DIR}VisualizationModel.h
 	${INC_DIR}ProblemDefinitionModel.h
@@ -20,6 +21,7 @@ set(Private_Includes
 	${INC_DIR}private/muk.pch
 	${INC_DIR}private/GoalAnalyzer.h
 	${INC_DIR}private/PathEvaluator.h
+	${INC_DIR}private/PropertyDetails.h
 	${INC_DIR}private/VisualizationModelLegacyIO.h
 	${INC_DIR}private/WorldVisualizationModelImpl.h
 	)
@@ -32,6 +34,8 @@ set(Sources
 	BaseModel.cpp
 	LocalEnvironment.cpp
 	PlanningModel.cpp
+	PropertyDetails.cpp
+	PropertyModel.cpp
 	SelectionModel.cpp
 	ProblemDefinitionModel.cpp
 	WorldVisualizationModel.cpp

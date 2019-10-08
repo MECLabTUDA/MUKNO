@@ -1,5 +1,4 @@
-#ifndef MUKNO_VISUALIZATION_TOOLS_H
-#define MUKNO_VISUALIZATION_TOOLS_H
+#pragma once
 
 #include "MukVisualization\muk_visualization_api.h"
 
@@ -25,19 +24,17 @@ namespace gris
     class MUK_VIS_API Transformer
     {
       public:
-        static DeclVtk(vtkPolyData) createLineSegments(const std::vector<Vec3d>& points);
-        static DeclVtk(vtkPolyData) createPoints(const std::vector<Vec3d>& points);
+        static vtkSmartPointer<vtkPolyData> createLineSegments(const std::vector<Vec3d>& points);
+        static vtkSmartPointer<vtkPolyData> createPoints(const std::vector<Vec3d>& points);
 
         static vtkSmartPointer<vtkPolyData> createArrows(const std::vector<MukState>& v, double length);
     };
 
-    MUK_VIS_API TypeVtk(vtkPolyData) createBounds(const IBounds& bounds);    
-    MUK_VIS_API DeclVtk(vtkRenderer) create3DCoordinateAxis();
+    MUK_VIS_API vtkSmartPointer<vtkPolyData> createBounds(const IBounds& bounds);    
+    MUK_VIS_API vtkSmartPointer<vtkRenderer> create3DCoordinateAxis();
 
     void setToVertices(vtkPolyData* data);
     void setToLines(vtkPolyData* data);
     
   }
 }
-
-#endif

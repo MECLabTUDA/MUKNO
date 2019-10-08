@@ -2,6 +2,7 @@
 #include "BasicVisualization.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkActor.h>
 #include <vtkAxesActor.h>
@@ -13,8 +14,6 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-
-
 
 namespace gris
 {

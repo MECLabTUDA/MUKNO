@@ -28,7 +28,7 @@ namespace muk
   void VisScaleableObject::setScale(const float scale)
   {
     mpActor->SetScale(scale);
-    std::for_each(mpActors.begin(), mpActors.end(), [&scale](DeclVtk(vtkActor) a) { a->SetScale(scale); });
+    std::for_each(mpActors.begin(), mpActors.end(), [&scale] (vtkSmartPointer<vtkActor> a) { a->SetScale(scale); });
   }
 
   float VisScaleableObject::getScale() const

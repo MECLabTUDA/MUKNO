@@ -20,7 +20,7 @@ namespace gris
       public:
         void setModels(const AppModels* pModels) { mpModels = pModels; }
 
-    public:
+      public:
         virtual const char* name() const = 0;
 
       protected:

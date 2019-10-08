@@ -2,17 +2,20 @@
 #include "TabSelection.h"
 
 #include "private/ParameterNet.h"
+#include "private/ParetoFront.h"
 #include "muk_qt_tools.h"
 
-#include "MukCommon/MukScene.h"
-#include "MukObstacle.h"
-#include "MukCommon/MukException.h"
 #include "MukCommon/ICollisionDetector.h"
+#include "MukCommon/MukException.h"
+#include "MukCommon/MukObstacle.h"
+#include "MukCommon/MukScene.h"
 
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QGraphicsView>
 #include <QtWidgets/QGridLayout>
-#include <QtWidgets/QSpinBox>
 #include <QtWidgets/qslider.h>
+#include <QtWidgets/QSpinBox>
+#include <qevent.h>
 #include <qlayoutitem.h>
 #include <QWheelEvent>
 #include <qstyle.h>
@@ -47,6 +50,31 @@ namespace
   unsigned int mpObstacleCount = 12;
 }
 
+namespace
+{
+  using namespace gris::muk;
+
+  /** special class for the QSlider, to allow doubleclicking in order to change the position
+  */
+  class MukSlider : public QSlider
+  {
+  public:
+    MukSlider(Qt::Orientation orientation, QWidget *parent = 0);
+
+  public:
+    void mouseDoubleClickEvent(QMouseEvent *clickEvent);
+  };
+
+  MukSlider::MukSlider(Qt::Orientation orientation, QWidget *parent) : QSlider(orientation, parent)
+  {
+  }
+  // when the slider is doubleclicked the bar jumps to that point
+  void MukSlider::mouseDoubleClickEvent(QMouseEvent *clickEvent)
+  {
+    setValue(maximum() * clickEvent->pos().x() / (width() - 1));
+  }
+}
+
 namespace gris
 {
   namespace muk
@@ -65,7 +93,7 @@ namespace gris
       auto* viewComponent = new QGraphicsView(this);
       mpComponentNet = new ParameterNet(300, 300, this, viewComponent);
       {
-        std::vector<QColor> weightingColors = { QColor(0,51,117), QColor(0,51,117), QColor(0,51,117), QColor(0,51,117), QColor(0,51,117), QColor(0,51,117) };
+        std::vector<QColor> weightingColors = { QColor(0, 51, 117), QColor(161, 217, 244), QColor(0, 51, 117), QColor(161, 217, 244), QColor(0, 51, 117), QColor(161, 217, 244) };
         std::vector<double> values = { 0.25, 0.25, 0.25, 0.25, 0.25, 0.25 };
         std::vector<QString> names = { "minimum distance","sum of curvatures", "angle difference", "length", "bone thickness", "longest airhole" };
         std::vector<bool> isActive = { true,true,true,true,true,true };
@@ -150,14 +178,14 @@ namespace gris
         button->setText(AdvancedOptionsWindowOff);
         connect(button, &QPushButton::clicked, this, &TabSelection::windowClicked);
         mpLayoutSmall->addWidget(button, 14, 0, 1, 5);
-        mpLayoutLarge->addWidget(button, 29, 50, 2, 5);
+        mpLayoutLarge->addWidget(button, 31, 50, 2, 5);
 
         button = new QPushButton(this);
         button->setObjectName("EnlargeButton");
         button->setText(AdvancedOptionsEnlargeOff);
         connect(button, &QPushButton::clicked, this, &TabSelection::enlargeClicked);
         mpLayoutSmall->addWidget(button, 14, 7, 1, 5);
-        mpLayoutLarge->addWidget(button, 29, 57, 2, 5);
+        mpLayoutLarge->addWidget(button, 31, 57, 2, 5);
       }
       
       auto* viewObstacle = new QGraphicsView(this);
@@ -251,7 +279,7 @@ namespace gris
         mpLayoutLargeCollector.push_back(label);
         mpLayoutLarge->addWidget(label, 4 + 4 * i, 0, 2, 1);
 
-        auto* slider = new QSlider(Qt::Horizontal, this);
+        auto* slider = new MukSlider(Qt::Horizontal, this);
         slider->setMinimum(0);
         slider->setMaximum(1000);
         slider->setSingleStep(1);
@@ -259,7 +287,7 @@ namespace gris
         slider->setValue(0);
         slider->setStyleSheet((i+1) % 2 ?"QSlider::handle:horizontal {background: #003375}" : "QSlider::handle:horizontal {background: #A1D9F4}");
         slider->setObjectName(QString("CSlider %1").arg(i));
-        connect(slider, &QSlider::valueChanged, this, [=] { emit this->componentFilterChanged(i); emit this->obstacleFilterChanged(-1); });
+        connect(slider, &QSlider::valueChanged, this, [=] { emit this->componentFilterChanged(i); emit this->obstacleFilterChanged(-1); resetParetoFront();});
         mpLayoutLargeCollector.push_back(slider);
         mpLayoutLarge->addWidget(slider, 4 + 4 * i, 1, 2, 16);
 
@@ -286,17 +314,20 @@ namespace gris
           label->setObjectName(QString("OSliderName %1").arg(i));
           mpLayoutLargeCollector.push_back(label);
           mpLayoutLarge->addWidget(label, 32 + 2 * i, 0, 2, 5);
+
           label = new QLabel(this);
           label->setText(QString("0"));
           label->setObjectName(QString("OSliderValue %1").arg(i));
           mpLayoutLargeCollector.push_back(label);
           mpLayoutLarge->addWidget(label, 32 + 2 * i, 5, 2, 1);
+
           label = new QLabel(this);
           label->setText(QString("0"));
           label->setObjectName(QString("OSliderMin %1").arg(i));
           mpLayoutLargeCollector.push_back(label);
           mpLayoutLarge->addWidget(label, 32 + 2 * i, 7, 2, 1);
-          auto* slider = new QSlider(Qt::Horizontal, this);
+
+          auto* slider = new MukSlider(Qt::Horizontal, this);
           slider->setMinimum(0);
           slider->setMaximum(1000);
           slider->setSingleStep(1);
@@ -304,9 +335,10 @@ namespace gris
           slider->setValue(0);
           slider->setStyleSheet((i + 1) % 2 ? "QSlider::handle:horizontal {background: #003375}" : "QSlider::handle:horizontal {background: #A1D9F4}");
           slider->setObjectName(QString("OSlider %1").arg(i));
-          connect(slider, &QSlider::valueChanged, this, [=] { emit this->componentFilterChanged(-1); emit this->obstacleFilterChanged(i);  });
+          connect(slider, &QSlider::valueChanged, this, [=] { emit this->componentFilterChanged(-1); emit this->obstacleFilterChanged(i); resetParetoFront();});
           mpLayoutLargeCollector.push_back(slider);
           mpLayoutLarge->addWidget(slider, 32 + 2 * i, 8, 2, 9);
+
           label = new QLabel(this);
           label->setText(QString("999"));
           label->setObjectName(QString("OSliderMax %1").arg(i));
@@ -466,63 +498,126 @@ namespace gris
       mpLayoutSmall->addWidget(label, 24, 0, 1, 12);
       mpLayoutLarge->addWidget(label, 18, 50, 2, 12);
 
-      //contains the Access Canals
-      for (int i(0); i < 3; ++i)
+      //contains the Access Canals, Auto-Fill Button
       {
-        label = new QLabel(this);
-        label->setObjectName(QString("AccessCanalLabel %1").arg(i));
-        label->setText((boost::format("Access Canal %d:") % (i + 1)).str().c_str());
-        mpLayoutSmall->addWidget(label, 25 + i, 0, 1, 3);
-        mpLayoutLarge->addWidget(label, 20 + 2 * i, 50, 2, 3);
+        for (int i(0); i < 3; ++i)
+        {
+          label = new QLabel(this);
+          label->setObjectName(QString("AccessCanalLabel %1").arg(i));
+          label->setText((boost::format("Access Canal %d:") % (i + 1)).str().c_str());
+          mpLayoutSmall->addWidget(label, 25 + i, 0, 1, 3);
+          mpLayoutLarge->addWidget(label, 20 + 2 * i, 50, 2, 3);
 
-        mAccessCanals[i] = new QLabel(this);
-        mAccessCanals[i]->setAlignment(Qt::AlignCenter);
-        mAccessCanals[i]->setText("");
-        mpLayoutSmall->addWidget(mAccessCanals[i], 25 + i, 4, 1, 1);
-        mpLayoutLarge->addWidget(mAccessCanals[i], 20 + 2 * i, 54, 2, 1);
+          mAccessCanals[i] = new QLabel(this);
+          mAccessCanals[i]->setAlignment(Qt::AlignCenter);
+          mAccessCanals[i]->setText("");
+          mpLayoutSmall->addWidget(mAccessCanals[i], 25 + i, 4, 1, 1);
+          mpLayoutLarge->addWidget(mAccessCanals[i], 20 + 2 * i, 54, 2, 1);
 
-        auto* pushButton = new QPushButton(this);
-        pushButton->setObjectName(QString("AccessCanalButton %1").arg(i));
-        pushButton->setText("Set");
-        connect(pushButton, &QPushButton::clicked, [=]() { emit this->indexChosenClicked(i); });
-        mpLayoutSmall->addWidget(pushButton, 25 + i, 5, 1, 2);
-        mpLayoutLarge->addWidget(pushButton, 20 + 2 * i, 55, 2, 2);
+          auto* pushButton = new QPushButton(this);
+          pushButton->setObjectName(QString("AccessCanalButton %1").arg(i));
+          pushButton->setText("Set");
+          connect(pushButton, &QPushButton::clicked, [=]() { emit this->indexChosenClicked(i); });
+          mpLayoutSmall->addWidget(pushButton, 25 + i, 5, 1, 2);
+          mpLayoutLarge->addWidget(pushButton, 20 + 2 * i, 55, 2, 2);
 
-        auto* spinbox = new QDoubleSpinBox(this);
-        spinbox->setSingleStep(0.01);
-        spinbox->setValue(1);
-        spinbox->setObjectName(QString("cutOffDistanceSpinBox %1").arg(i));
-        spinbox->setToolTip(QString("all states of accessCanal %1 that are closer\n to the goalpoint than this distance are marked blue").arg(i + 1));
-        connect(spinbox, &QDoubleSpinBox::editingFinished, [=] { emit this->cutOffDistanceChanged(i, spinbox->value()); });
-        mpLayoutSmall->addWidget(spinbox, 25 + i, 7, 1, 2);
-        mpLayoutLarge->addWidget(spinbox, 20 + 2 * i, 57, 2, 2);
+          auto* spinbox = new QDoubleSpinBox(this);
+          spinbox->setSingleStep(0.01);
+          spinbox->setValue(1);
+          spinbox->setObjectName(QString("cutOffDistanceSpinBox %1").arg(i));
+          spinbox->setToolTip(QString("all states of accessCanal %1 that are closer\n to the goalpoint than this distance are marked blue").arg(i + 1));
+          connect(spinbox, &QDoubleSpinBox::editingFinished, [=] { emit this->cutOffDistanceChanged(i, spinbox->value()); });
+          mpLayoutSmall->addWidget(spinbox, 25 + i, 7, 1, 2);
+          mpLayoutLarge->addWidget(spinbox, 20 + 2 * i, 57, 2, 2);
 
+
+          auto* button = new QPushButton(this);
+          button->setObjectName(QString("asObstacleButton %1").arg(i));
+          button->setText(asObstacleOff);
+          button->setToolTip(QString("Sets the not-blue States of AccessCanal %1 as an Obstacle").arg(i + 1));
+          connect(button, &QPushButton::clicked, [=] { emit this->asObstacleClicked(i); });
+          mpLayoutSmall->addWidget(button, 25 + i, 9, 1, 3);
+          mpLayoutLarge->addWidget(button, 20 + 2 * i, 59, 2, 3);
+        }
 
         auto* button = new QPushButton(this);
-        button->setObjectName(QString("asObstacleButton %1").arg(i));
-        button->setText(asObstacleOff);
-        button->setToolTip(QString("Sets the not-blue States of AccessCanal %1 as an Obstacle").arg(i+1));
-        connect(button, &QPushButton::clicked, [=] { emit this->asObstacleClicked(i); });
-        mpLayoutSmall->addWidget(button, 25 + i, 9, 1, 3);
-        mpLayoutLarge->addWidget(button, 20 + 2 * i, 59, 2, 3);
+        button->setObjectName("AutoFillCanalsButton");
+        button->setText("Auto-Fill the Canals");
+        button->setToolTip("fills all unset Access Canals with the \none apart from each other the most");
+        connect(button, &QPushButton::clicked, [&]() { emit fillCanalsClicked(); });
+        mpLayoutSmall->addWidget(button, 28, 2, 1, 8);
+        mpLayoutLarge->addWidget(button, 26, 52, 2, 8);
       }
 
       auto* button = new QPushButton(this);
-      button->setObjectName("AutoFillCanalsButton");
-      button->setText("Auto-Fill the Canals");
-      button->setToolTip("fills all unset Access Canals with the \none apart from each other the most");
-      connect(button, &QPushButton::clicked, this, &TabSelection::fillCanalsClicked);
-      mpLayoutSmall->addWidget(button, 28, 2, 1, 8);
-      mpLayoutLarge->addWidget(button, 26, 52, 2, 8);
+      button->setObjectName("paretoFrontButton");
+      button->setText("Show Pareto-Front Window");
+      button->setToolTip("opens the window for the Pareto-Front");
+      connect(button, &QPushButton::clicked, [&]() { emit paretoFrontClicked(); });
+      mpLayoutSmall->addWidget(button, 29, 0, 1, 12);
+      mpLayoutLarge->addWidget(button, 28, 50, 2, 12);
 
       spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
-      mpLayoutSmall->addItem(spacer, 29, 0, 7, 12);
-      mpLayoutLarge->addItem(spacer, 32, 50, 27, 12);
+      mpLayoutSmall->addItem(spacer, 30, 0, 7, 12);
+      mpLayoutLarge->addItem(spacer, 33, 50, 27, 12);
 
       setLayoutLarge(false);
+
+      // Contains Layout for the ParetoWindow and it's widgets
+      {
+        auto* paretoWindowLayout = new QGridLayout(this);
+        paretoWindowLayout->setObjectName("paretoLayout");
+
+        mpPossibleParameterList->append("- not selected -");
+        mpPossibleParameterList->append("Path Length");
+        mpPossibleParameterList->append("Minimum Distance");
+        mpPossibleParameterList->append("Minimum Distance to Facialis");
+        mpPossibleParameterList->append("Minimum Distance to Chorda");
+
+        mFatherWidget = new QWidget();
+
+        auto gridLayout = new QGridLayout(mFatherWidget);
+        auto Hlayout = new QHBoxLayout();
+        auto Vlayout = new QVBoxLayout();
+        Vlayout->addLayout(Hlayout);
+        gridLayout->addLayout(Vlayout, 0, 9, 8, 4);
+
+        auto* viewPareto = new QGraphicsView(this);
+        mpParetoFront = new ParetoFront(800, 800, viewPareto);
+        mpParetoFront->setObjectName("ParetoFront");
+        mpParetoFront->connect(mpParetoFront, &ParetoFront::clickedPath, this, [=](size_t ind) { mpSelectedPath->setValue(int(ind)); });
+        viewPareto->setObjectName("Graphic View Pareto");
+        viewPareto->setRenderHint(QPainter::Antialiasing);
+        viewPareto->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+        viewPareto->setBackgroundBrush(Qt::white);
+        viewPareto->setScene(mpParetoFront);
+        viewPareto->setToolTip("Shows the ParetoFront for the chosen Parameters.");
+        gridLayout->addWidget(viewPareto, 0, 0, 8, 8);
+
+        auto* comboBox = new QComboBox(mFatherWidget);
+        comboBox->setObjectName("paretoParam1");
+        comboBox->addItems(*mpPossibleParameterList);
+        comboBox->connect(comboBox, SELECT<const QString&>::OVERLOAD_OF(&QComboBox::currentIndexChanged), this, [&](const QString& str) { paramChosen(true, str); emit this->parameterChosen(true, str);});
+        Hlayout->addWidget(comboBox);
+
+        comboBox = new QComboBox(mFatherWidget);
+        comboBox->setObjectName("paretoParam2");
+        comboBox->addItems(*mpPossibleParameterList);
+        comboBox->connect(comboBox, SELECT<const QString&>::OVERLOAD_OF(&QComboBox::currentIndexChanged), this, [&](const QString& str) { paramChosen(false, str); emit this->parameterChosen(false, str);});
+        Hlayout->addWidget(comboBox);
+
+        button = new QPushButton(this);
+        button->setObjectName("paretoExitButton");
+        button->setText("Close Window");
+        button->setToolTip("closes the Window for the Pareto Front");
+        button->connect(button, &QPushButton::clicked, this, &TabSelection::paretoExitClicked);
+        Vlayout->addWidget(button);
+
+        mFatherWidget->setLayout(gridLayout);
+      }
     }
 
-    /** Sets the Selection Tab layout to large, hiding all the items of the !large Collector
+    /** Sets the Selection Tab layout to large, hiding all the items that are not in the large Collector
     */
     void TabSelection::setLayoutLarge(bool large)
     {
@@ -554,6 +649,7 @@ namespace gris
         }
       }
     }
+
 
     /** updates the amount of Components depending on ctFileLoaded (still respects the state of the tab)
     */
@@ -720,6 +816,7 @@ namespace gris
       updateComponentFilter(tempComponentInitVector, tempComponentInitVector, tempComponentInitVector, std::vector<double>(mpComponentCount, filterEndInitValue));
       auto tempObstacleInitVector = std::vector<double>(mpObstacleCount, obstacleFiltersInitValue);
       updateObstacleFilter(tempObstacleInitVector, tempObstacleInitVector, tempObstacleInitVector, std::vector<double>(mpObstacleCount, filterEndInitValue));
+      resetParetoFront();
     }
 
     /** returns the Values of all possible (6) ComponentWeights
@@ -896,6 +993,55 @@ namespace gris
       auto spinbox = findChild<QDoubleSpinBox*>(QString("cutOffDistanceSpinBox %1").arg(canalInd));
       const QSignalBlocker blocker(spinbox);
       spinbox->setValue(distance);
+    }
+    
+    /** disables the paretoWindowButton aslong as the window is open
+    */
+    void gris::muk::TabSelection::paretoStatus(const bool is_active) const
+    {
+      auto button = findChild<QPushButton*>("paretoFrontButton");
+      button->setDisabled(is_active);
+    }
+
+    /** updates one ComboBox when a parameter is chosen in the other
+    */
+    void gris::muk::TabSelection::paramChosen(const bool is_param1, const QString& chosenParam) const
+    {
+      QComboBox* parameterBox;
+      parameterBox = is_param1 ? mFatherWidget->findChild<QComboBox*>("paretoParam2") : mFatherWidget->findChild<QComboBox*>("paretoParam1");
+      const QSignalBlocker blocker(parameterBox);
+      auto oldText = parameterBox->currentText();
+      parameterBox->clear();
+      parameterBox->addItems(*mpPossibleParameterList);
+      auto chosenIndex = parameterBox->findText(chosenParam);
+      if (chosenIndex > 0)
+        parameterBox->removeItem(chosenIndex);
+      parameterBox->setCurrentIndex(parameterBox->findText(oldText));
+    }
+
+    /** Sets one Parameter in the ParetoFront, when both are set the paths get loaded into the scene
+    */
+    void gris::muk::TabSelection::setParetoParameter(bool isParam1, const QString & paramName, const std::vector<double>* parameterList, const std::vector<size_t>* parameterOrder, const std::vector<size_t>& filteredPaths)
+    {
+      mpParetoFront->setParameterList(isParam1, paramName, parameterList, parameterOrder, filteredPaths);
+    }
+
+    /** resets both parameters to '- not selected -' (used when the amount of filtered paths changed)
+    */
+    void gris::muk::TabSelection::resetParetoFront()
+    {
+      mpParetoFront->setParameterList(true, mpPossibleParameterList->at(0), nullptr, nullptr, std::vector<size_t>());
+      mpParetoFront->setParameterList(false, mpPossibleParameterList->at(0), nullptr, nullptr, std::vector<size_t>());
+      auto* parameterBox = mFatherWidget->findChild<QComboBox*>("paretoParam1");
+      const QSignalBlocker blocker(parameterBox);
+      parameterBox->clear();
+      parameterBox->addItems(*mpPossibleParameterList);
+      parameterBox->setCurrentIndex(0);
+      parameterBox = mFatherWidget->findChild<QComboBox*>("paretoParam2");
+      //const QSignalBlocker blocker(parameterBox);
+      parameterBox->clear();
+      parameterBox->addItems(*mpPossibleParameterList);
+      parameterBox->setCurrentIndex(0);
     }
 
     /** \utility function to return a double cut of after a given amount of decimals

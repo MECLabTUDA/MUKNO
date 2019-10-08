@@ -14,6 +14,7 @@ namespace gris
     class LocalEnvironment;
     class PlanningModel;
     class ProblemDefinitionModel;
+    class PropertyModel;
     class SelectionModel;    
     class StateRegionManipulator;
     class VisualizationModel;
@@ -24,21 +25,27 @@ namespace gris
     */
     struct MUK_APP_API AppModels
     {
-      AppModels();
-      ~AppModels();
+      public:
+        AppModels();
+        ~AppModels();
 
-      bool hasModel(const std::string& name) const;
+      public:
+        bool              hasModel(const std::string& name) const;
+        BaseModel*        getModel(const std::string& name);
+        BaseModel*        getModel(const std::string& name) const;
  
-      std::unique_ptr<AlgorithmModel>           pAlgorithmModel;
-      std::unique_ptr<ApplicationModel>         pAppModel;
-      std::unique_ptr<LocalEnvironment>         pLocal;
-      std::unique_ptr<PlanningModel>            pPlanningModel;
-      std::unique_ptr<ProblemDefinitionModel>   pProbDefModel;
-      std::unique_ptr<SelectionModel>           pSelectionModel;
-      std::unique_ptr<VisualizationModel>       pVisModel;
-      std::unique_ptr<WorldVisualizationModel>  pWorldVisModel;
+      public:
+        std::unique_ptr<AlgorithmModel>           pAlgorithmModel;
+        std::unique_ptr<ApplicationModel>         pAppModel;
+        std::unique_ptr<LocalEnvironment>         pLocal;
+        std::unique_ptr<PlanningModel>            pPlanningModel;
+        std::unique_ptr<ProblemDefinitionModel>   pProbDefModel;
+        std::unique_ptr<PropertyModel>            pPropModel;
+        std::unique_ptr<SelectionModel>           pSelectionModel;
+        std::unique_ptr<VisualizationModel>       pVisModel;
+        std::unique_ptr<WorldVisualizationModel>  pWorldVisModel;
 
-      std::vector<BaseModel*> mpModels;
+        std::vector<BaseModel*> mpModels;
     };
 
   }

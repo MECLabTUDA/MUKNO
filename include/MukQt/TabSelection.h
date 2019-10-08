@@ -17,8 +17,11 @@ namespace gris
   {
     class MukScene;
     class ParameterNet;
+    class ParetoFront;
 
-    /**
+    /** \brief Gui of the Selection Tab
+      Is Interface for changing Paths, evaluating paths, rotating through the path with the VisImageOverlay,
+      setting path as obstacles/access canals filtering paths
     */
     class MUK_QT_API TabSelection : public QWidget
     {
@@ -57,6 +60,10 @@ namespace gris
         void asObstacleClicked(size_t i);
         void fillCanalsClicked();
 
+        void paretoFrontClicked();
+        void paretoExitClicked();
+        void parameterChosen(bool isParam1, const QString& paramName);
+
       public:
         TabSelection(QWidget *parent = nullptr);
         ~TabSelection() = default;
@@ -85,7 +92,12 @@ namespace gris
         void    checkAccessCanals(std::vector<size_t> chosenIdx);
         void    toggleAsObstacle(bool on, size_t i);
         void    updateCutOffDistance(size_t canalInd, double distance);
-        
+
+        void    paretoStatus(const bool is_active) const;
+        void    paramChosen(const bool is_param1, const QString& chosenParam) const;
+        QWidget*    getFatherWidget() const { return mFatherWidget;}
+        void    setParetoParameter(bool isParam1, const QString& paramName, const std::vector<double>* parameterList, const std::vector<size_t>* parameterOrder, const std::vector<size_t>& filteredPaths);
+        void    resetParetoFront();
 
         double  roundDouble(double value, size_t decimals);
 
@@ -103,13 +115,15 @@ namespace gris
         QLabel* mAccessCanals[3];
         ParameterNet* mpComponentNet;
         ParameterNet* mpObstacleNet;
+        ParetoFront* mpParetoFront;
         QSpinBox* mpSelectedPath;
         QSpinBox* mpSelectedState;
         QGridLayout* mpLayoutSmall;
         QGridLayout* mpLayoutLarge;
         QWidgetList mpLayoutLargeCollector;
         QWidgetList mpLayoutSmallCollector;
-        
+        QStringList* mpPossibleParameterList = new QStringList();
+        QWidget* mFatherWidget;
     };
   }
 }

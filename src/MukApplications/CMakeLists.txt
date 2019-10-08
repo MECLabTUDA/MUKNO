@@ -1,3 +1,9 @@
+option(MukUtilities_MuknoPlanner "Enable the Main Application for preoperative planning" OFF)
+if (${MukUtilities_MuknoPlanner})
+	add_subdirectory(MuknoPlanner)
+endif()
+
+
 option(MukUtilities_IPCAI2019 "Enable the Application for IPCAI 2019 conference" OFF)
 if (${MukUtilities_IPCAI2019})
 	add_subdirectory(Conf_IPCAI2019)

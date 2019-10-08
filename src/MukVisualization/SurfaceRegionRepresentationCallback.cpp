@@ -3,6 +3,7 @@
 
 #include "MukCommon/MukVector.h"
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include "MukVisualization/PolyDataHandler.h"
 

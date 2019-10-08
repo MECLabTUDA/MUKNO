@@ -6,6 +6,7 @@
 #include "PolyDataHandler.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 #include "MukCommon/MukPathGraph.h"
 
 #include <vtkSmartPointer.h>

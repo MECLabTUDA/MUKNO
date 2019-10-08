@@ -6,7 +6,6 @@
 #include "SegThorExperiment.h"
 
 #include "MukPathPlanning/PluginManagerPP.h"
-#include "MukPdmWrapper/PluginManagerPdmWrapper.h"
 #include "MukConvexOptimization/PluginManagerConvexOptimization.h"
 
 #include <ctime>
@@ -39,7 +38,6 @@ int main(int argc, char ** argv)
     GetGrisLogger().setFileLogging(true);
 
     PluginManagerPP::initialize();
-    PluginManagerPdmWrapper::initialize();
     PluginManagerConvexOptimization::initialize();
 
     // read in configuration file

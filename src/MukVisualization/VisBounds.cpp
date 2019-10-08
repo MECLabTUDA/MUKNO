@@ -4,6 +4,7 @@
 
 #include "MukCommon/IBounds.h"
 #include "MukCommon/MukException.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>

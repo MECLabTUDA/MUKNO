@@ -38,6 +38,7 @@ set(Private_Includes
 	${INC_DIR}private/DirectionInteractionStyle.h
 	${INC_DIR}private/muk.pch
 	${INC_DIR}private/ParameterNet.h
+	${INC_DIR}private/ParetoFront.h
 	${INC_DIR}private/SliceSynchronizer.h
 	${INC_DIR}private/SliceInteractorStyle.h
 	)
@@ -63,6 +64,7 @@ set(Sources
 	QuickPathAnalysisWindow.cpp
 	QuickPlanningConfigurationWindow.cpp
 	ParameterNet.cpp
+	ParetoFront.cpp
 	ProblemDefinitionWidget.cpp
 	PropertyWidget.cpp
 	VolumeWidget.cpp

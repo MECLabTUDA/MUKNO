@@ -2,6 +2,7 @@
 #include "private/ImageOverlayCallback.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkExtractVOI.h>
 #include <vtkImageData.h>

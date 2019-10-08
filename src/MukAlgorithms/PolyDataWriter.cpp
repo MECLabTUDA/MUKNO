@@ -3,6 +3,7 @@
 #include "AlgorithmFactory.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkPolyDataWriter.h>
 

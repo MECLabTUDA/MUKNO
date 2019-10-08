@@ -35,5 +35,9 @@ set(MODULE_NAME MukQt)
 add_subdirectory(${MODULE_NAME})
 set_target_properties(${MODULE_NAME} PROPERTIES FOLDER Libraries)
 
+set(MODULE_NAME MukNavigation)
+add_subdirectory(${MODULE_NAME})
+set_target_properties(${MODULE_NAME} PROPERTIES FOLDER Libraries)
+
 set(MODULE_NAME MukApplications)
 add_subdirectory(${MODULE_NAME})

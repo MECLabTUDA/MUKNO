@@ -2,6 +2,8 @@
 #include "VisTrajectory.h"
 #include "ArrowTrajectory.h"
 
+#include "MukCommon/vtk_tools.h"
+
 #include <vtkArrowSource.h>
 #include <vtkAppendPolyData.h>
 #include <vtkMath.h>
@@ -45,7 +47,7 @@ namespace muk
   */
   void VisTrajectory::update()
   {
-    const size_t N = mTrajectory.getPath().size();
+    const size_t N = mTrajectory.getStates().size();
     if (N == 0)
       return;
     if (N<2)
@@ -58,8 +60,8 @@ namespace muk
     auto appendFilter = make_vtk<vtkAppendPolyData>();
     for (size_t i(0); i<N-1; ++i)
     {
-      auto& state = mTrajectory.getPath()[i];
-      auto& nextState = mTrajectory.getPath()[i+1];
+      auto& state = mTrajectory.getStates()[i];
+      auto& nextState = mTrajectory.getStates()[i+1];
       const auto arrow = Arrow::create(nextState.coords, nextState.tangent);
       arrows[i] = make_vtk<vtkPolyData>();
       arrows[i]->DeepCopy(arrow.getData());

@@ -13,5 +13,3 @@
 //#define MUK_QT_CREATE_DLL
 
 #include "gstd/logger.h"
-
-#include "private/targetver.h"

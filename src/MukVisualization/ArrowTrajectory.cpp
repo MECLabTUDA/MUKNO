@@ -2,6 +2,7 @@
 #include "ArrowTrajectory.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkAppendPolyData.h>
 #include <vtkArrowSource.h>
