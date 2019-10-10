@@ -5,13 +5,15 @@
 #include "MukCommon/MukVector.h"
 #include "MukCommon/MukException.h"
 
-#include <tuple>
-
 #include <QGraphicsSceneMouseEvent>
 #include <QMouseEvent>
 #include <QtWidgets/QSpinBox>
 #include <qgraphicsitem.h>
 #include <qtransform.h>
+
+#include <boost/format.hpp>
+
+#include <tuple>
 
 namespace gris
 {
@@ -108,89 +110,100 @@ namespace gris
       showsDetails = false;
       pathPositions.clear();
 
-      auto* AxisName = new QGraphicsTextItem(mParam1Name);
-      AxisName->setScale(1.3);
-      AxisName->setPos(0.05 * mWidth, 0.45 * mHeight - AxisName->sceneBoundingRect().width() / 2);
-      auto* rotator = new QTransform();
-      rotator->rotate(90);
-      AxisName->setTransform(*rotator);
-      this->addItem(AxisName);
-      AxisName = new QGraphicsTextItem(mParam2Name);
-      AxisName->setScale(1.3);
-      AxisName->setPos(0.55 * mWidth - AxisName->sceneBoundingRect().width() / 2, 0.95 * mHeight);
-      this->addItem(AxisName);
+      auto* axisName = new QGraphicsTextItem(mParam1Name);
+      auto rotator = QTransform();
+      rotator.rotate(90);
+      {
+        axisName->setScale(1.3);
+        axisName->setPos(0.05 * mWidth, 0.45 * mHeight - axisName->sceneBoundingRect().width() / 2);
+        axisName->setTransform(rotator);
+        this->addItem(axisName);
+        axisName = new QGraphicsTextItem(mParam2Name);
+        axisName->setScale(1.3);
+        axisName->setPos(0.55 * mWidth - axisName->sceneBoundingRect().width() / 2, 0.95 * mHeight);
+        this->addItem(axisName);
+      }
       // when both parameters are set
       if (mpParameter1List && mpParameter2List)
       {
-        double parameter1Worst;
-        double parameter2Worst;
-        double parameter1Best;
-        double parameter2Best;
-        // ugly way to check for the worst and best of the parameters while ignoring all filtered out paths
-        for (size_t i : *mpParam1Order)
+        double parameter1Worst(0);
+        double parameter2Worst(0);
+        double parameter1Best(0);
+        double parameter2Best(0);
         {
-          if (std::find(mFilteredPaths.begin(), mFilteredPaths.end(), i) == mFilteredPaths.end())
-            continue;
-          parameter1Best = mpParameter1List->at(i);
-          break;
-        }
-        for (size_t i : *mpParam2Order)
-        {
-          if (std::find(mFilteredPaths.begin(), mFilteredPaths.end(), i) == mFilteredPaths.end())
-            continue;
-          parameter2Best = mpParameter2List->at(i);
-          break;
-        }
-        for (int i(int(mpParam1Order->size()) - 1); i > -1; --i)
-        {
-          if (std::find(mFilteredPaths.begin(), mFilteredPaths.end(), mpParam1Order->at(i)) == mFilteredPaths.end())
-            continue;
-          parameter1Worst = mpParameter1List->at(mpParam1Order->at(i));
-          break;
-        }
-        for (int i(int(mpParam2Order->size()) - 1); i > -1; --i)
-        {
-          if (std::find(mFilteredPaths.begin(), mFilteredPaths.end(), mpParam2Order->at(i)) == mFilteredPaths.end())
-            continue;
-          parameter2Worst = mpParameter2List->at(mpParam2Order->at(i));
-          break;
+          // ugly way to check for the worst and best of the parameters while ignoring all filtered out paths
+          for (size_t i : *mpParam1Order)
+          {
+            if (std::find(mFilteredPaths.begin(), mFilteredPaths.end(), i) == mFilteredPaths.end())
+              continue;
+            parameter1Best = mpParameter1List->at(i);
+            break;
+          }
+          for (size_t i : *mpParam2Order)
+          {
+            if (std::find(mFilteredPaths.begin(), mFilteredPaths.end(), i) == mFilteredPaths.end())
+              continue;
+            parameter2Best = mpParameter2List->at(i);
+            break;
+          }
+          for (int i(int(mpParam1Order->size()) - 1); i > -1; --i)
+          {
+            if (std::find(mFilteredPaths.begin(), mFilteredPaths.end(), mpParam1Order->at(i)) == mFilteredPaths.end())
+              continue;
+            parameter1Worst = mpParameter1List->at(mpParam1Order->at(i));
+            break;
+          }
+          for (int i(int(mpParam2Order->size()) - 1); i > -1; --i)
+          {
+            if (std::find(mFilteredPaths.begin(), mFilteredPaths.end(), mpParam2Order->at(i)) == mFilteredPaths.end())
+              continue;
+            parameter2Worst = mpParameter2List->at(mpParam2Order->at(i));
+            break;
+          }
         }
         auto parameter1Diff = parameter1Best - parameter1Worst;
         auto parameter2Diff = parameter2Best - parameter2Worst;
 
         double bestXPos = 0.0;
-        char buffer[50];
-        sprintf(buffer, "Best: %f", parameter1Best);
-        auto* AxisMark = new QGraphicsTextItem(buffer);
-        AxisMark->setScale(1.3);
-        AxisMark->setPos(0.1 * mWidth, 0.15 * mHeight - AxisMark->sceneBoundingRect().width() / 2);
-        AxisMark->setTransform(*rotator);
-        this->addItem(AxisMark);
-        sprintf(buffer, "Worst: %f", parameter1Worst);
-        AxisMark = new QGraphicsTextItem(buffer);
-        AxisMark->setScale(1.3);
-        AxisMark->setPos(0.1 * mWidth, 0.75 * mHeight - AxisMark->sceneBoundingRect().width() / 2);
-        AxisMark->setTransform(*rotator);
-        this->addItem(AxisMark);
-        sprintf(buffer, "Best: %f", parameter2Best);
-        AxisMark = new QGraphicsTextItem(buffer);
-        AxisMark->setScale(1.3);
-        AxisMark->setPos(0.85 * mWidth - AxisMark->sceneBoundingRect().width() / 2, 0.9 * mHeight);
-        this->addItem(AxisMark);
-        sprintf(buffer, "Worst: %f", parameter2Worst);
-        AxisMark = new QGraphicsTextItem(buffer);
-        AxisMark->setScale(1.3);
-        AxisMark->setPos(0.25 * mWidth - AxisMark->sceneBoundingRect().width() / 2, 0.9 * mHeight);
-        this->addItem(AxisMark);
-
+        //char buffer[50];
+        std::string buffer;
+        buffer = (boost::format("Best: %2.2f") % parameter1Best).str();
+        auto* axisMark = new QGraphicsTextItem(buffer.c_str());
+        {
+          axisMark->setScale(1.3);
+          axisMark->setPos(0.1 * mWidth, 0.15 * mHeight - axisMark->sceneBoundingRect().width() / 2);
+          axisMark->setTransform(rotator);
+          this->addItem(axisMark);
+        }
+        buffer = (boost::format("Worst: %2.2f") % parameter1Worst).str();
+        axisMark = new QGraphicsTextItem(buffer.c_str());
+        {
+          axisMark->setScale(1.3);
+          axisMark->setPos(0.1 * mWidth, 0.75 * mHeight - axisMark->sceneBoundingRect().width() / 2);
+          axisMark->setTransform(rotator);
+          this->addItem(axisMark);
+        }
+        buffer = (boost::format("Best: %2.2f") % parameter2Best).str();
+        axisMark = new QGraphicsTextItem(buffer.c_str());
+        {
+          axisMark->setScale(1.3);
+          axisMark->setPos(0.85 * mWidth - axisMark->sceneBoundingRect().width() / 2, 0.9 * mHeight);
+          this->addItem(axisMark);
+        }
+        buffer = (boost::format("Worst: %2.2f") % parameter2Worst).str();
+        axisMark = new QGraphicsTextItem(buffer.c_str());
+        {
+          axisMark->setScale(1.3);
+          axisMark->setPos(0.25 * mWidth - axisMark->sceneBoundingRect().width() / 2, 0.9 * mHeight);
+          this->addItem(axisMark);
+        }
         // Line for the efficient values
         auto* multiLine = new QGraphicsPathItem();
         multiLine->setPen(QPen(QColor(0, 200, 50), 3));
         this->addItem(multiLine);
-        auto* path = new QPainterPath(QPoint(0, 0));
+        auto path = std::make_unique<QPainterPath>(QPoint(0, 0));
 
         bool first = true;
-
         for (size_t i(0); i < mpParam1Order->size(); ++i)
         {
           if (std::find(mFilteredPaths.begin(), mFilteredPaths.end(), mpParam1Order->at(i)) == mFilteredPaths.end())

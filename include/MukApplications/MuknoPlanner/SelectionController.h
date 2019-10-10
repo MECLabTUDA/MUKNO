@@ -5,11 +5,15 @@
 #include "VisMukPath.h"
 
 #include <memory>
+#include <array>
+
+class QMainWindow;
 
 namespace gris
 {
   namespace muk
   {
+    class ParetoWidget;
     class SelectionModel;
     class TabSelection;
     class QuickPathAnalysisWindow;
@@ -83,9 +87,10 @@ namespace gris
         void autoFillCanals();
         void markStatesInPath(std::shared_ptr<VisMukPath> path, std::vector<bool> statesToMark);
 
-        void showParetoFrontWindow() const;
-        void exitParetoFrontWindow() const;
+        void showParetoFrontWindow();
+        void exitParetoFrontWindow();
         void paretoParameterChosen(bool isParam1, const QString& parameterName) const;
+        void resetParetoFront();
 
       public:
         void setDefaultSelectionView();
@@ -94,6 +99,7 @@ namespace gris
       private:
         void setCollectionVisibility(const std::string& key, bool visible);
         void addPath(int idx);
+        std::vector<std::string> getParetoParams() const;
 
       private:
         SelectionModel* myModel;
@@ -109,6 +115,10 @@ namespace gris
         std::vector<std::string> mActiveObstacles;
         std::vector<size_t> mfilteredPaths;
         std::unique_ptr<QuickPathAnalysisWindow> mpPlot;
+
+        std::unique_ptr<QMainWindow> mpParetoWindow;
+        mutable std::array<std::vector<double>, 2> mDummy;
+        ParetoWidget* mpParetoWidget = nullptr;
     };
   }
 }

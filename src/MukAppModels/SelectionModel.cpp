@@ -25,6 +25,8 @@ class vtkImplicitPlaneRepresentation;
 
 namespace
 {
+  using namespace gris::muk;
+
   class PaintImageCallback;
 
   /** \brief selected Indices for drilling
@@ -34,7 +36,6 @@ namespace
     std::vector<size_t> selectedIndices;
   };
 
-  using namespace gris::muk;
   /**
   */
   std::vector<size_t> customSort(const std::vector<double>& v, std::function<bool(double, double)> compare);
@@ -363,9 +364,9 @@ namespace gris
           mp->airholes[i] = currentTextureSpecifics[2];
         }
       }
-      // only calculates the minDistToEachObstacle when the tab was set as large/window atleast once
+      // only calculates the minDistToEachObstacle when the tab was set as large/window at least once
       // because it takes alot of time
-      if (mp->advancedOptionsRequested)
+      //if (mp->advancedOptionsRequested)
       {
         if (visAvailable)
         {
@@ -374,6 +375,16 @@ namespace gris
         else
         {
           mp->minDistToEachObstacle = pEval.minDistToEachObst(interpolatedPaths, mp->filteredPaths);
+        }
+        mp->minDistToEachObstacleOrder.clear();
+        for (size_t i(0); i < mp->activeObstacles.size(); ++i)
+        {
+          std::vector<double> tempVec;
+          for (size_t j(0); j < mp->minDistToEachObstacle.size(); ++j)
+          {
+            tempVec.push_back(mp->minDistToEachObstacle[j][i]);
+          }
+          mp->minDistToEachObstacleOrder.push_back(customSort(tempVec, std::greater<double>()));
         }
       }
       mp->distanceOrder   = customSort(mp->distances,   std::greater<double>());

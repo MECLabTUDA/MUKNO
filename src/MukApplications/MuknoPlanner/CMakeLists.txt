@@ -112,6 +112,12 @@ target_link_libraries(${PROJECT_NAME}
 	${Qt5Widgets_LIBRARIES}
 	)
 
+## CONDITIONALLY Linked libraries
+if(${MukLibs_ConvexOptimization})
+  target_link_libraries(${PROJECT_NAME}    MukConvexOptimization    )
+  target_compile_definitions(${PROJECT_NAME} PUBLIC      MUK_LINK_CONVEX_OPTIMIZATION    )
+endif()
+
 # prepare Versions file
 gris_version_configure(${PROJECT_NAME})
 

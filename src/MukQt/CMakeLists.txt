@@ -19,6 +19,7 @@ set(Includes
 	${INC_DIR}/MukQRightClickMenu.h	
 	${INC_DIR}/MukQToolbar.h
 	${INC_DIR}/MultipleDoubleVectorPlot.h
+	${INC_DIR}/ParetoWidget.h
 	${INC_DIR}/ProblemDefinitionWidget.h
 	${INC_DIR}/PropertyWidget.h
 	${INC_DIR}/QuickPathAnalysisWindow.h
@@ -65,6 +66,7 @@ set(Sources
 	QuickPlanningConfigurationWindow.cpp
 	ParameterNet.cpp
 	ParetoFront.cpp
+	ParetoWidget.cpp
 	ProblemDefinitionWidget.cpp
 	PropertyWidget.cpp
 	VolumeWidget.cpp

@@ -32,6 +32,7 @@
 #include "MukQt/muk_qt_tools.h"
 #include "MukQt/MuknoPlannerMainWindow.h"
 #include "MukQt/MukQToolBar.h"
+#include "MukQt/ParetoWidget.h"
 #include "MukQt/QuickPathAnalysisWindow.h"
 #include "MukQt/SceneWidget.h"
 #include "MukQt/TabSelection.h"
@@ -54,22 +55,30 @@ namespace
   */
   class TabSelectionWindow : public QMainWindow
   {
-  public:
-    TabSelectionWindow(QWidget *parent = 0);
+    public:
+      TabSelectionWindow(QWidget *parent = 0);
 
-  public:
-    void closeEvent(QCloseEvent *closeEvent);
+    public:
+      void closeEvent(QCloseEvent *closeEvent);
   };
 
-  TabSelectionWindow::TabSelectionWindow(QWidget *parent) : QMainWindow(parent)
+  TabSelectionWindow::TabSelectionWindow(QWidget *parent) 
+    : QMainWindow(parent)
   {
   }
+
   // sends a signal when manually closed
   void TabSelectionWindow::closeEvent(QCloseEvent *closeEvent)
   {
     emit TabSelectionWindow::destroyed();
     closeEvent->accept();
   }
+
+  /** pareto fron dummies
+  */
+  const std::string Invalid_Choice  = "- not selected -";
+  const std::string Path_Length     = "Path Length";
+  const std::string Min_Distance    = "Minimum Distance";
 }
 
 namespace gris
@@ -152,8 +161,9 @@ namespace gris
         connect(pTabSelection, &TabSelection::fillCanalsClicked, this, &SelectionController::autoFillCanals);
         // everything regarding the paretoFront
         connect(pTabSelection, &TabSelection::paretoFrontClicked, this, &SelectionController::showParetoFrontWindow);
-        connect(pTabSelection, &TabSelection::paretoExitClicked, this, &SelectionController::exitParetoFrontWindow);
-        connect(pTabSelection, &TabSelection::parameterChosen, this, &SelectionController::paretoParameterChosen);
+        connect(pTabSelection, &TabSelection::requestParetoFrontReset, this, &SelectionController::resetParetoFront);
+        //connect(pTabSelection, &TabSelection::paretoExitClicked, this, &SelectionController::exitParetoFrontWindow);
+        //connect(pTabSelection, &SelectionController::parameterChosen, this, &SelectionController::paretoParameterChosen);
         // everything interesting for weighting and evaluation
         // when a weighting is changed the path will be automaticly evaluated afterwards
         connect(pTabSelection, &TabSelection::componentWeightingChanged, this, [=] {componentWeightingChanged(); evaluatePaths(); });
@@ -181,8 +191,10 @@ namespace gris
     */
     void SelectionController::updateSelectionTab()
     { // when the current Tab is the selection tab or the tab is in the window it will update
-      if (mpMainWindow->mpTabContainer->currentIndex() == MuknoPlannerMainWindow::enSelection || mTabIsWindow)
-      { // just needed when the tab is windowed or enlarged before a scene was loaded (gives an error if not for this passage)
+      if ( mpMainWindow->mpTabContainer->currentIndex() == MuknoPlannerMainWindow::enSelection
+        || mTabIsWindow)
+      { 
+        // just needed when the tab is windowed or enlarged before a scene was loaded (gives an error if not for this passage)
         // calculates the model if needed
         selectPathCollection();
         // updates the selectionTab UI
@@ -994,11 +1006,13 @@ namespace gris
       }
     }
 
-    /** When a Filter-Slider is changed this computes the filters for the Model and sends the Values for the Labels back to Tab Selection
+    /** \brief When a Filter-Slider is changed this computes the filters for the Model and sends the values for the labels back to Selection Tab
     */
     void SelectionController::obstacleFilterChanged(int ind)
-    { // behaves like the distance component of componentFilterChanged, just for every obstacle
-      if (!mActiveKey.empty() && !mpModels->pAppModel->getScene()->getPathCollection(mActiveKey).getPaths().empty())
+    {
+      // behaves like the distance component of componentFilterChanged, just for every obstacle
+      if ( ! mActiveKey.empty() 
+        && ! mpModels->pAppModel->getScene()->getPathCollection(mActiveKey).getPaths().empty())
       {
         mfilteredPaths = myModel->getFilteredPaths();
         double maxFilter = 1000.0;
@@ -1009,14 +1023,17 @@ namespace gris
         std::vector<double> filterMax;
         double worstDistance = 0;
         double bestDistance = std::numeric_limits<double>::infinity();
-        auto oldValues = myModel->getObstacleFilter();
-        for (size_t i(0); i < obstacleCount; i++)
+        auto   oldValues    = myModel->getObstacleFilter();
+        auto minDistToObst = myModel->getMinDistToEachObstacle();
+        if (minDistToObst.empty())
+          return;
+        for (size_t i(0); i < obstacleCount; ++i)
         {
           std::vector<double> obstacleDistancesMax;
           std::vector<double> obstacleDistancesMin;
-          auto minDistToObst = myModel->getMinDistToEachObstacle();
           for (size_t j(0); j < minDistToObst.size(); j++)
-          { // get the best and worst distance to every obstacle
+          {
+            // get the best and worst distance to every obstacle
             if (std::find(mfilteredPaths.begin(), mfilteredPaths.end(), j) != mfilteredPaths.end())
               obstacleDistancesMax.push_back(minDistToObst[j][i]);
             obstacleDistancesMin.push_back(minDistToObst[j][i]);
@@ -1427,29 +1444,51 @@ namespace gris
       mpModels->pVisModel->render();
     }
 
+    /** \brief
+    */
+    std::vector<std::string> SelectionController::getParetoParams() const
+    {
+      std::vector<std::string> params;
+      params.push_back(Invalid_Choice);
+      params.push_back(Path_Length);
+      params.push_back(Min_Distance);
+      for (const auto& obs : mActiveObstacles)
+        params.push_back(obs);
+      return params;
+    }
+
     /** called when clicked on the show paretoFrontWindow button in tabselection. Opens a new Window with the same widgets
     */
-    void SelectionController::showParetoFrontWindow() const
+    void SelectionController::showParetoFrontWindow()
     {
-      auto paretoWindow = new TabSelectionWindow(); // the window
+      mpParetoWindow.reset(new TabSelectionWindow()); // the window
       //paretoWindow->showMaximized();
-      paretoWindow->show();
-      paretoWindow->setWindowTitle("ParetoFront");
-      paretoWindow->setObjectName("ParetoFrontWindow");
-      paretoWindow->setMinimumSize(1275, 850);
+      mpParetoWindow->show();
+      mpParetoWindow->setWindowTitle("ParetoFront");
+      mpParetoWindow->setObjectName("ParetoFrontWindow");
+      mpParetoWindow->setMinimumSize(1275, 850);
 
-      paretoWindow->setCentralWidget(mpMainWindow->mpTabSelection->getFatherWidget());
-      
+      mpParetoWidget = new ParetoWidget(nullptr);
+      auto params = getParetoParams();
+      mpParetoWidget->setParameterList(params);
+      mpParetoWindow->setCentralWidget(mpParetoWidget);
       mpMainWindow->mpTabSelection->paretoStatus(true);
-      paretoWindow->connect(paretoWindow, &QMainWindow::destroyed, mpMainWindow->mpTabSelection, [=] { mpMainWindow->mpTabSelection->paretoStatus(false); });
+      //mpParetoWidget->connect(mpParetoWindow.get(), &QMainWindow::destroyed, [=] { mpMainWindow->mpTabSelection->paretoStatus(false); });
+
+      connect(mpParetoWindow.get(), &QMainWindow::destroyed, [=] { mpMainWindow->mpTabSelection->paretoStatus(false); });
+      connect(mpParetoWindow.get(), &QMainWindow::destroyed, this, &SelectionController::exitParetoFrontWindow);
+      connect(mpParetoWidget, &ParetoWidget::clickedPath, mpMainWindow->mpTabSelection, &TabSelection::setSinglePathSelection); //[=] (size_t ind) { mpMainWindow->mpTabSelection->mpSelectedPath->setValue(int(ind)); });
+      connect(mpParetoWidget, &ParetoWidget::parameterChosen, this, &SelectionController::paretoParameterChosen); //[=] (size_t ind) { mpMainWindow->mpTabSelection->mpSelectedPath->setValue(int(ind)); });
+      //comboBox->connect(comboBox, SELECT<const QString&>::OVERLOAD_OF(&QComboBox::currentIndexChanged), this, [&](const QString& str) { paramChosen(false, str); emit this->parameterChosen(false, str);});
+      //connect(pTabSelection, &SelectionController::parameterChosen, this, &SelectionController::paretoParameterChosen);
     }
 
     /** called when clicked on the exit button in the paretoFrontWindow. Closes the Window
     */
-    void SelectionController::exitParetoFrontWindow() const
+    void SelectionController::exitParetoFrontWindow()
     {
-      auto window = dynamic_cast<TabSelectionWindow*>(mpMainWindow->mpTabSelection->getFatherWidget()->parent());
-      window->close();
+      mpParetoWindow->close();
+      mpParetoWidget = nullptr;
     }
 
     /** called when a parameter is chosen in the paretoFrontWindow.
@@ -1458,70 +1497,59 @@ namespace gris
     void SelectionController::paretoParameterChosen(bool isParam1, const QString& parameterName) const
     {
       const auto &filteredPaths = myModel->getFilteredPaths();
-      auto* parameterList = new std::vector<double>;
-      auto* parameterOrder = new std::vector<size_t>;
-      if (parameterName.toStdString() == std::string("- not selected -"))
+      const std::vector<double>* parameterList  = nullptr;
+      const std::vector<size_t>* parameterOrder = nullptr;
+      const auto paramName = parameterName.toStdString();
+      if (paramName == Invalid_Choice)
       {
         parameterList = nullptr;
         parameterOrder = nullptr;
       }
-      else if (parameterName.toStdString() == std::string("Path Length"))
+      else if (paramName == Path_Length)
       {
-        *parameterList = myModel->getLengths();
-        *parameterOrder = myModel->getLengthOrder();
+        parameterList  = &myModel->getLengths();
+        parameterOrder = &myModel->getLengthOrder();
       }
-      else if (parameterName.toStdString() == std::string("Minimum Distance"))
+      else if (paramName == Min_Distance)
       {
-        *parameterList = myModel->getDistances();
-        *parameterOrder = myModel->getDistanceOrder();
+        parameterList  = &myModel->getDistances();
+        parameterOrder = &myModel->getDistanceOrder();
       }
-      else if (parameterName.toStdString() == std::string("Minimum Distance to Facialis"))
+      else
       {
-        size_t obstacleIndex = -1;
+        bool found = false;
+        size_t obstacleIndex;
         for (size_t i(0); i < mActiveObstacles.size(); ++i)
         {
-          if (mActiveObstacles[i] == "FacialNerve")
+          if (paramName == mActiveObstacles[i])
           {
+            found = true;
             obstacleIndex = i;
             break;
           }
         }
-        if (obstacleIndex == -1)
+        if (found)
         {
-          throw MUK_EXCEPTION_SIMPLE("FacialNerve is not an active Obstacle and can thus not be set as a parameter!");
-          return;
-        }
-        auto minDistToEachObst = myModel->getMinDistToEachObstacle();
-        for (size_t i(0); i < minDistToEachObst.size(); ++i)
-        {
-          parameterList->push_back(minDistToEachObst[i][obstacleIndex]);
-        }
-        *parameterOrder = myModel->getMinDistToEachObstacleOrder()[obstacleIndex];
-      }
-      else if (parameterName.toStdString() == std::string("Minimum Distance to Chorda"))
-      {
-        size_t obstacleIndex = -1;
-        for (size_t i(0); i < mActiveObstacles.size(); ++i)
-        {
-          if (mActiveObstacles[i] == "ChordaTympani")
+          const auto& minDistToEachObst = myModel->getMinDistToEachObstacle();
+          auto idx = isParam1 ? 0 : 1;
+          mDummy[idx].clear();
+          for (size_t i(0); i < minDistToEachObst.size(); ++i)
           {
-            obstacleIndex = i;
-            break;
+            mDummy[idx].push_back(minDistToEachObst[i][obstacleIndex]);
           }
+          parameterList  = &mDummy[idx];
+          parameterOrder = &myModel->getMinDistToEachObstacleOrder()[obstacleIndex];
         }
-        if (obstacleIndex == -1)
-        {
-          throw MUK_EXCEPTION_SIMPLE("ChordaTympani is not an active Obstacle and can thus not be set as a parameter!");
-          return;
-        }
-        auto minDistToEachObst = myModel->getMinDistToEachObstacle();
-        for (size_t i(0); i < minDistToEachObst.size(); ++i)
-        {
-          parameterList->push_back(minDistToEachObst[i][obstacleIndex]);
-        }
-        *parameterOrder = myModel->getMinDistToEachObstacleOrder()[obstacleIndex];
       }
-      mpMainWindow->mpTabSelection->setParetoParameter(isParam1, parameterName, parameterList, parameterOrder, filteredPaths);
+      mpParetoWidget->setParetoParameter(isParam1, parameterName, parameterList, parameterOrder, filteredPaths);
+    }
+
+    /** resets both parameters to '- not selected -' (used when the amount of filtered paths changed)
+    */
+    void SelectionController::resetParetoFront()
+    {
+      if (mpParetoWidget)
+        mpParetoWidget->resetChoice();
     }
 
     /**

@@ -7,6 +7,9 @@
 #include "MukCommon/version.h"
 #include "MukNavigation/PluginManagerNavi.h"
 #include "MukPathPlanning/PluginManagerPP.h"
+#ifdef MUK_LINK_CONVEX_OPTIMIZATION
+#include "MukConvexOptimization/PluginManagerConvexOptimization.h"
+#endif
 // The required Versions are provided in private/requiredLibraryVersions.hxx.in.
 // CMAKE will configure the local required Version variables into a file in the binary directory.
 #include "private/requiredLibraryVersions.hxx"
@@ -34,6 +37,9 @@ int main(int argc, char ** argv)
 
     gris::muk::PluginManagerPP::initialize();
     gris::muk::PluginManagerNavi::initialize();
+#ifdef MUK_LINK_CONVEX_OPTIMIZATION
+    gris::muk::PluginManagerConvexOptimization::initialize();
+#endif
 
 #ifndef DEVELOP
     ShowWindow( GetConsoleWindow(), SW_HIDE );
