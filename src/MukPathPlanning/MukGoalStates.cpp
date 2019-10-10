@@ -41,7 +41,7 @@ namespace base
   */
   MukGoalStates::MukGoalStates(const SpaceInformationPtr &si)
     : GoalStates(si)
-    , mAngleThreshold(0.125*gris::M_PI)
+    , mAngleThreshold(0.125*gris::M_Pi)
   {
   }
 
@@ -122,7 +122,7 @@ namespace base
     });
 
     if (insideBall.empty())
-      return gris::M_PI;
+      return gris::M_Pi;
 
     auto iter = std::min_element(insideBall.begin(), insideBall.end(), [&] (const auto* lhs, const auto* rhs)
       {

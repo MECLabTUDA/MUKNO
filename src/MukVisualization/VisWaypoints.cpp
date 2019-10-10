@@ -5,6 +5,7 @@
 
 #include "MukCommon/muk_common.h"
 #include "MukCommon/MukException.h"
+#include "MukCommon/vtk_tools.h"
 
 #include "MukVisualization/muk_colors.h"
 

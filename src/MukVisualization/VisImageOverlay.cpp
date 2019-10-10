@@ -4,6 +4,7 @@
 #include "private/ImageOverlayCallback.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkImageData.h>
 #include <vtkImplicitPlaneWidget2.h>

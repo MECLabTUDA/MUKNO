@@ -5,6 +5,7 @@
 
 #include "MukCommon/muk_common.h"
 #include "MukCommon/SurfaceStateRegion.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>

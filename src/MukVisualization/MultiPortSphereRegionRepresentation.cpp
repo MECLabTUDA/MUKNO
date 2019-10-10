@@ -3,6 +3,7 @@
 
 #include "MukCommon/muk_common.h"
 #include "MukCommon/gris_math.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkAssemblyPaths.h>
 #include <vtkCamera.h>
@@ -136,7 +137,7 @@ namespace gris
     {
       mAngleThreshold = alpha;
       for (int i(0); i<3; ++i)
-        mArrows[i].mThresh->SetEndPhi(alpha*180/gris::M_PI);
+        mArrows[i].mThresh->SetEndPhi(alpha*180/gris::M_Pi);
     }
 
     /**
@@ -1329,7 +1330,7 @@ namespace
     M->Identity();
     const auto n  = Vec3d(0,0,1);
     const auto v = dir.cross(n);
-    const double phi = -std::acos(n.dot(dir)) * 180/gris::M_PI;
+    const double phi = -std::acos(n.dot(dir)) * 180/gris::M_Pi;
     trafo->Translate(T);
     trafo->RotateWXYZ(phi, v.data());
   }

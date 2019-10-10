@@ -6,6 +6,7 @@
 #include "MukCommon/muk_common.h"
 #include "MukCommon/gris_math.h"
 #include "MukCommon/polygon_3d_tools.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkAssemblyPaths.h>
 #include <vtkBox.h>

@@ -3,6 +3,7 @@
 #include "muk_colors.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>

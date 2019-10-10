@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<Mukno>
+	<version>0.6.0.0</version>
+	<SurgeryPlanning>
+		<MukScene>
+			<SceneName />
+			<Obstacles>
+				<Obstacle>
+					<Name>AscendingAorta</Name>
+					<File>1017/AscendingAorta.vtk</File>
+					<Active>true</Active>
+					<Color>1 0 0</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>LeftAtrium</Name>
+					<File>1017/LeftAtrium.vtk</File>
+					<Active>true</Active>
+					<Color>0 1 0</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>LeftMyocardium</Name>
+					<File>1017/LeftMyocardium.vtk</File>
+					<Active>true</Active>
+					<Color>1 0.666667 0.498039</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>LeftVentricle</Name>
+					<File>1017/LeftVentricle.vtk</File>
+					<Active>true</Active>
+					<Color>0.666667 0 1</Color>
+					<Opacity>1</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>PulmonaryArtery</Name>
+					<File>1017/PulmonaryArtery.vtk</File>
+					<Active>true</Active>
+					<Color>0 0 1</Color>
+					<Opacity>0.40000000000000002</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>RightAtrium</Name>
+					<File>1017/RightAtrium.vtk</File>
+					<Active>true</Active>
+					<Color>0.666667 0.333333 0.498039</Color>
+					<Opacity>0.40000000000000002</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+				<Obstacle>
+					<Name>RightVentricle</Name>
+					<File>1017/RightVentricle.vtk</File>
+					<Active>true</Active>
+					<Color>0 0.666667 0</Color>
+					<Opacity>0.40000000000000002</Opacity>
+					<Visibility>1</Visibility>
+				</Obstacle>
+			</Obstacles>
+			<PathCollections>
+				<PathCollection>
+					<Name>PulmonaryAccess</Name>
+					<InactiveObstacles>
+						<Obstacle>PulmonaryEntry</Obstacle>
+						<Obstacle>PulmonaryEntry2</Obstacle>
+						<Obstacle>RightAtriumValve</Obstacle>
+					</InactiveObstacles>
+					<ProblemDefinition>
+						<Bounds-Max>74.331 374.414 -81.5332</Bounds-Max>
+						<Bounds-Min>-58.9309 233.203 -201.469</Bounds-Min>
+						<GoalAngleThreshold>0.78539816339744828</GoalAngleThreshold>
+						<GoalThreshold>1</GoalThreshold>
+						<Kappa>0.20000000000000001</Kappa>
+						<Radius>0.5</Radius>
+						<SafetyDistance>3</SafetyDistance>
+						<FileName>scene_1017/ProblemDefinition_PulmonaryAccess.txt</FileName>
+						<StartRegions>
+							<StartRegion0>
+								<ClassName>StateRegionSphere</ClassName>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<Resolution>1</Resolution>
+								<Color>0.5 0.5 0.5</Color>
+								<Opacity>1</Opacity>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<SampleResolution>1</SampleResolution>
+								<Scale>1</Scale>
+								<Visibility>1</Visibility>
+							</StartRegion0>
+						</StartRegions>
+						<GoalRegions>
+							<GoalRegion0>
+								<ClassName>StateRegionSphere</ClassName>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<Resolution>1</Resolution>
+								<Color>0.5 0.5 0.5</Color>
+								<Opacity>1</Opacity>
+								<Phi>0</Phi>
+								<Radius>0.5</Radius>
+								<SampleResolution>1</SampleResolution>
+								<Scale>1</Scale>
+								<Visibility>1</Visibility>
+							</GoalRegion0>
+						</GoalRegions>
+						<Waypoints />
+					</ProblemDefinition>
+					<MukPaths />
+				</PathCollection>
+			</PathCollections>
+		</MukScene>
+		<Configuration>
+			<Planning>
+				<Planner>
+					<Type>Spline-Based-RRT-Connect</Type>
+					<Calc-Time>1</Calc-Time>
+					<ConeLength>40</ConeLength>
+					<ConeRadius>20</ConeRadius>
+					<GoalBias>0.050000000000000003</GoalBias>
+					<MaxChildren>10</MaxChildren>
+					<NearestBallRadius>1</NearestBallRadius>
+					<Step-Size>10</Step-Size>
+					<Verbose>0</Verbose>
+				</Planner>
+				<Pruner>
+					<Type>Yang-Spiral-Pruner</Type>
+					<MaxStepSize>0.000000</MaxStepSize>
+					<MaxDistance>3.500000</MaxDistance>
+				</Pruner>
+				<Interpolator>
+					<Type>Yang-Spiral-Interpolator</Type>
+					<InterpolationType>resolution</InterpolationType>
+					<PointsPerSegment>5</PointsPerSegment>
+					<Resolution>0.100000</Resolution>
+				</Interpolator>
+			</Planning>
+			<Visualization>
+				<Camera>
+					<FocalPoint>20.8649 295.902 -129.942</FocalPoint>
+					<Position>-64.1471 569.635 -70.0686</Position>
+					<ViewUp>-0.843152 -0.350952 0.407342</ViewUp>
+				</Camera>
+			</Visualization>
+		</Configuration>
+	</SurgeryPlanning>
+</Mukno>

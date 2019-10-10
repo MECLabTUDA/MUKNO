@@ -6,6 +6,7 @@
 #include "SliceInteractorStyle.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkActor2D.h>
 #include <vtkCamera.h>

@@ -3,6 +3,7 @@
 #include "MultiPortSphereRegionRepresentation.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 #include "MukCommon/MukException.h"
 #include "MukCommon/MultiPortStateRegion.h"
 #include "MukCommon/MukProblemDefinition.h"

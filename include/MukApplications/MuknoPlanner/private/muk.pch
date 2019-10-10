@@ -1,0 +1,12 @@
+// stdafx.h : include file for standard system include files,
+// or project specific include files that are used frequently, but
+// are changed infrequently
+//
+
+#pragma once
+
+#pragma warning( disable : 4251 ) // dll-interface warnings
+#pragma warning( disable : 4275 ) // dll-interface warning non dll-interface class 'std::exception' used as base for dll-interface class 'gris::muk::MukException'
+
+#include "gstd/logger.h"
+//#include "targetver.h"

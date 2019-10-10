@@ -4,6 +4,7 @@
 #include "Remesher.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include "MukImaging/muk_imaging_tools.h"
 

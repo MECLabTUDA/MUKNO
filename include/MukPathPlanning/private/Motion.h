@@ -18,18 +18,21 @@ namespace ompl
     struct Motion
     {
       using deleter_type = std::function<void(Motion*)>;
-      
+
       Motion()
         : pState(nullptr) 
         , pParent(nullptr) 
+        , isRoot(false)
       {
       }
-      
+
       static Motion* create(const base::SpaceInformationPtr& si);
       static std::unique_ptr<Motion, deleter_type> make_unique(const base::SpaceInformationPtr& si);
 
       base::State* pState;
       Motion*      pParent;
+      bool         isRoot;
+      size_t       numChildren = 0;
     };
   }
 }

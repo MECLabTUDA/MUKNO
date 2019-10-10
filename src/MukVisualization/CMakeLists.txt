@@ -39,12 +39,14 @@ set(Includes
 	${INC_DIR}/VisMukPathGraph.h
 	${INC_DIR}/VisMukProblemDefinition.h
 	${INC_DIR}/VisMukRobotSource.h
+	${INC_DIR}/MukVtkAxesActor.h	
 	${INC_DIR}/VisObstacle.h
 	${INC_DIR}/VisPathCollection.h
 	${INC_DIR}/VisPlaneRegion.h
 	${INC_DIR}/VisPreliminaryTestRobot.h
 	${INC_DIR}/VisScaleableObject.h
 	${INC_DIR}/VisScene.h
+	${INC_DIR}/VisSE3Trajectory.h
 	${INC_DIR}/VisSphereRegion.h
 	${INC_DIR}/VisMultiPortSphereRegion.h
 	${INC_DIR}/VisStateRegion.h
@@ -76,6 +78,7 @@ set(Sources
 	IVisRobot.cpp
 	muk_colors.cpp
 	MukRobotSource.cpp
+	MukVtkAxesActor.cpp
 	MultiPortSphereRegionRepresentation.cpp
 	PlaneRegionRepresentation.cpp
 	PlaneRegionWidget.cpp
@@ -110,6 +113,7 @@ set(Sources
 	VisPreliminaryTestRobot.cpp
 	VisScaleableObject.cpp
 	VisScene.cpp
+	VisSE3Trajectory.cpp
 	VisSphereRegion.cpp
 	VisStateRegion.cpp
 	VisStateRegionFactory.cpp

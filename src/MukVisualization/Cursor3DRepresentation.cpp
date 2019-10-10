@@ -2,6 +2,7 @@
 #include "Cursor3DRepresentation.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkObjectFactory.h>
 #include <vtkActor.h>

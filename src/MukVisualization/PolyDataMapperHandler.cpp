@@ -2,6 +2,7 @@
 #include "PolyDataMapperHandler.h"
 
 #include "MukCommon/muk_common.h"
+#include "MukCommon/vtk_tools.h"
 #include "MukCommon/MukException.h"
 
 #include <vtkSmartPointer.h>

@@ -7,6 +7,7 @@
 
 #include "MukCommon/MukException.h"
 #include "MukCommon/overload_deduction.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkRenderer.h>
 #include <vtkActor.h>

@@ -9,6 +9,7 @@
 #include "MukCommon/MukStateRegion.h"
 
 #include "MukCommon/gris_math.h"
+#include "MukCommon/vtk_tools.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -102,7 +103,7 @@ namespace gris
       if ( ! asStart)
         state.tangent *= -1;
       res->setCenter(state);
-      const auto phi = mpRep->getSpherePhi() * gris::M_PI / 180.0;;
+      const auto phi = mpRep->getSpherePhi() * gris::M_Pi / 180.0;;
       res->setPhi(phi);
       res->setRadius(mpRep->getSphereRadius());
       res->setResolution(mResolution);
@@ -129,7 +130,7 @@ namespace gris
     */
     void VisSphereRegion::setFromProblemDefinition(const MukProblemDefinition& obj)
     {
-      mpRep->setSpherePhi ( obj.getGoalAngleThreshold() * 180 / M_PI );
+      mpRep->setSpherePhi ( obj.getGoalAngleThreshold() * 180 / M_Pi );
     }
 
     /**

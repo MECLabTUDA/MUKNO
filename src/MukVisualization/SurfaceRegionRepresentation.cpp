@@ -6,6 +6,7 @@
 #include "MukCommon/geometry.h"
 #include "MukCommon/muk_common.h"
 #include "MukCommon/polygon_3d_tools.h"
+#include "MukCommon/vtk_tools.h"
 
 #include "MukVisualization/muk_colors.h"
 #include "MukVisualization/PolyDataHandler.h"
