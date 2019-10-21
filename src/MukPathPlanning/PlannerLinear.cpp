@@ -115,8 +115,11 @@ namespace gris
           MukPath next;
           next.setRadius(pProbDef->getRadius());
           auto startNN = line.projection(asEigen(initStates[idx].coords));
-          auto start   = MukState(asMuk(startNN), state.tangent);
+          const auto p = asMuk(startNN);
+          const auto t = (state.coords - p).normalized();
+          auto start   = MukState(p,t);
           next.getStates().push_back(start);
+          next.getStates().push_back(state);
           work.push_back(next);
         }
       }
