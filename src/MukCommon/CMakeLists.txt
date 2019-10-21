@@ -138,7 +138,7 @@ set(Sources
 	)
   
 # configure the resource file
-gris_configure_resource_rc(Resources MuknoII Algorithms ${MODULE_NAME})
+gris_configure_resource_rc(Resources MuknoII Common ${PROJECT_NAME})
 
 add_library(${PROJECT_NAME} SHARED	
 	${Sources}
