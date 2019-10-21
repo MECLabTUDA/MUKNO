@@ -832,13 +832,18 @@ namespace gris
 
     /** when a double click in the pathAnalysis window is registered the closest state to the mouse is determined
         and the nearest neighbor to that state is shown in the planner (and colered according to the distance)
+
+        TODO: fix this properly, as currently more than one graph could be displayed.
     */
     void SelectionController::plotDoubleClicked(QMouseEvent * mouseEvent, QuickPathAnalysisWindow * window)
     {
-      auto* data = window->getPlot()->graph(1)->data();
+      if (window->getPlot()->graphCount() == 0)
+        return;
+      auto* graph = window->getPlot()->graph(0);
+      auto* data = graph->data();
       auto xAxis = data->values();
       auto yAxis = data->keys();
-      auto keyAxis = window->getPlot()->graph(1)->keyAxis();
+      auto keyAxis = graph->keyAxis();
       auto minDif = std::numeric_limits<double>::infinity();
       auto pathState = -1;
       // for every state of the x axis the distance to the mouse position is calculated
