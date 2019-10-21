@@ -46,7 +46,7 @@ set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib64-msvc-14.0"  CACHE PATH "Boost library 
 mark_as_advanced(BOOST_LIBRARYDIR)
 # configuration options for Boost
 set(Boost_COMPONENTS
-    "chrono" "date_time" "filesystem" "program_options"
+    "chrono" "date_time" "filesystem" "program_options" "regex"
     "serialization" "system" "thread" "unit_test_framework")
 
 # gris_boost_find_and_fix populates BOOST_TARGETS with the imported targets
