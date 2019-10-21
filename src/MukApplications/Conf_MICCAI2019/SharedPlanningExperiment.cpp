@@ -312,7 +312,7 @@ namespace muk
           ofs << " " << activeObs[i];
         ofs << "\n";
         // then values for each path
-        const auto vals = select.getMinDistToEachObst();
+        const auto vals = select.getMinDistToEachObstacle();
         for (const auto& path : vals)
         {
           if ( ! path.empty())
@@ -358,7 +358,7 @@ namespace muk
           ofs << " " << activeObs[i];
         ofs << "\n";
         // then values for each path
-        const auto vals = select.getMinDistToEachObst();
+        const auto vals = select.getMinDistToEachObstacle();
         for (const auto& path : vals)
         {
           if ( ! path.empty())
