@@ -58,6 +58,7 @@ namespace gris
       vtkSmartPointer<Cursor3DWidget>       mpCursorWidget;
 
       EnMedicalOrientation mOrientation;
+      double mLabelOpacity = 0.5;
     };
 
     /**
@@ -187,6 +188,39 @@ namespace gris
     double SliceRenderGroup::getColorLevel() const
     {
       return mp->mpImageActor->GetProperty()->GetColorLevel();
+    }
+
+    /**
+    */
+    void SliceRenderGroup::setLabelOpacity(double val)
+    {
+      mp->mLabelOpacity = val;
+      const auto N = mp->mpLookupTable->GetNumberOfTableValues();
+      auto* range = mp->mpLookupTable->GetRange();
+      for (vtkIdType i(0); i<N; ++i)
+      {
+        if (i == 0)
+          continue;
+        double rgba[4];
+        mp->mpLookupTable->GetTableValue(i,rgba);
+        rgba[3] = mp->mLabelOpacity;
+        mp->mpLookupTable->SetTableValue(i, rgba);
+      }
+
+      auto* table =  mp->mpLookupTable->GetTable();
+
+      mp->mpLookupTable->Build();
+      mp->mpTransparencyMap->SetLookupTable(mp->mpLookupTable);
+      mp->mpTransparencyMap->Modified();
+      mp->mpLabelMapper->Modified();
+      mp->mpLabelActor->Modified();
+    }
+
+    /**
+    */
+    double SliceRenderGroup::getLabelOpacity() const
+    {
+      return mp->mLabelOpacity;
     }
 
     /**
@@ -340,7 +374,7 @@ namespace gris
       camera->SetPosition(p);
     }
 
-    /**
+    /** \brief generate an annotated lookup table based on the label values
     */
     void SliceRenderGroup::setLookupTable(const std::vector<SegmentationLabel>& labels)
     {
@@ -348,21 +382,17 @@ namespace gris
         return;
 
       mp->mpLookupTable = make_vtk<vtkLookupTable>();
+      mp->mpLookupTable->SetIndexedLookup(1);
       mp->mpLookupTable->SetNumberOfTableValues(labels.size());
-      auto maxValue = std::max_element(labels.begin(), labels.end(), [&] (const auto& lhs, const auto& rhs)
-      {
-        return lhs.grayValue < rhs.grayValue;
-      });
-      auto minValue = std::min_element(labels.begin(), labels.end(), [&] (const auto& lhs, const auto& rhs)
-      {
-        return lhs.grayValue < rhs.grayValue;
-      });
-      mp->mpLookupTable->SetRange(minValue->grayValue, maxValue->grayValue);
 
       for (const auto& label : labels)
       {
-        double opacity = label.grayValue == 0 ? 0 : 0.5;
-        mp->mpLookupTable->SetTableValue(label.grayValue, label.color.x(), label.color.y(), label.color.z(), opacity);
+        const auto value      = std::to_string(label.grayValue);
+        const auto annotation = label.label;
+        const auto idx = mp->mpLookupTable->SetAnnotation(value, annotation);
+        auto opacity = 0 == label.grayValue ? 0 : mp->mLabelOpacity;
+        double rgba[4] = { label.color.x(), label.color.y(), label.color.z(), opacity};
+        mp->mpLookupTable->SetTableValue(idx, rgba);
       }
       mp->mpLookupTable->Build();
       mp->mpTransparencyMap->SetLookupTable(mp->mpLookupTable);

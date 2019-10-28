@@ -85,6 +85,8 @@ namespace gris
         double  getColorLevel()          const;
         void    setColorWindow(double val);
         double  getColorWindow()          const;
+        void    setLabelOpacity(double val);
+        double  getLabelOpacity()          const;        
 
       public:
         vtkRenderer*      getRenderer();

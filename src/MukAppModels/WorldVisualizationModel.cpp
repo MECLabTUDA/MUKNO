@@ -21,6 +21,7 @@ namespace muk
             mp->mpAxialSliceWidget->getRenderGroup().setColorWindow(val);
             mp->mpSagittalSliceWidget->getRenderGroup().setColorWindow(val); 
             mp->mpCoronalSliceWidget->getRenderGroup().setColorWindow(val); 
+            render();
           }
       , [&] () { return mp->mpAxialSliceWidget->getRenderGroup().getColorWindow();  });
 
@@ -29,9 +30,21 @@ namespace muk
     {
       mp->mpAxialSliceWidget->getRenderGroup().setColorLevel(val);
       mp->mpSagittalSliceWidget->getRenderGroup().setColorLevel(val); 
-      mp->mpCoronalSliceWidget->getRenderGroup().setColorLevel(val); 
+      mp->mpCoronalSliceWidget->getRenderGroup().setColorLevel(val);
+      render();
     }
     , [&] () { return mp->mpAxialSliceWidget->getRenderGroup().getColorLevel();  });
+
+    declareProperty<double>("LabelOpacity"
+      , [&] (double val)
+    {
+      auto percent = val / 100.0;
+      mp->mpAxialSliceWidget->getRenderGroup().setLabelOpacity(percent);
+      mp->mpSagittalSliceWidget->getRenderGroup().setLabelOpacity(percent); 
+      mp->mpCoronalSliceWidget->getRenderGroup().setLabelOpacity(percent); 
+      render();
+    }
+    , [&] () { return mp->mpAxialSliceWidget->getRenderGroup().getLabelOpacity() * 100;  });
   }
 
   /**
@@ -92,8 +105,8 @@ namespace muk
   {
     mp->mpAxialGroup->getRenderWindow()->Render();
     mp->mpSagittalGroup->getRenderWindow()->Render();
-    mp->mp3DWindow->Render();
     mp->mpCoronalGroup->getRenderWindow()->Render();
+    mp->mp3DWindow->Render();
   }
 
   /**
