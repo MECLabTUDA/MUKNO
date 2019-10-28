@@ -5,7 +5,10 @@ namespace gris
 {
   namespace muk
   {
-    /**
+    /** \brief Creates a Label image based on the interior of a mesh.
+
+      input port 0: a mesh
+      input port 1: a 3D image
     */
     class MUK_ALGO_API MeshToImageFilter : public AlgorithmWrapper
     {

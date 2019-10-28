@@ -20,7 +20,7 @@ namespace muk
   struct MeshToImageFilter::Impl
   {
     vtkPolyData* inputMesh = nullptr;
-    ImageInt3D*    inputRefImage = nullptr;
+    ImageInt3D*  inputRefImage = nullptr;
     ImageInt3D::Pointer output;
     MukPixel label = 1;
   };
@@ -50,8 +50,10 @@ namespace muk
     {
       case 0:
         mp->inputMesh = toDataType<vtkPolyData>(pDataType);
+        break;
       case 1:
         mp->inputRefImage = toDataType<ImageInt3D>(pDataType);
+        break;
     };
   }
 
@@ -59,16 +61,16 @@ namespace muk
   */
   void* MeshToImageFilter::getOutput(unsigned int portId)
   {
-    return mp->output;
+    return mp->output.GetPointer();
   }
 
   /**
   */
   void MeshToImageFilter::update()
   {
-    auto result = meshToBinaryImage(mp->inputRefImage, mp->inputMesh, mp->label);
+    auto result = meshToBinaryImage(*mp->inputRefImage, *mp->inputMesh, mp->label);
     
-    mp->output = ImageInt3D::New();
+    mp->output->Initialize();
     // Allocate the image
     mp->output->CopyInformation( result );
     mp->output->SetRequestedRegion( result->GetRequestedRegion() );

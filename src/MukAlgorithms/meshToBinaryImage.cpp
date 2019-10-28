@@ -1,9 +1,8 @@
 #include "private/muk.pch"
 #include "meshToBinaryImage.h"
 
-#include "MukCommon/muk_common.h"
-#include "MukCommon/vtk_tools.h"
 #include "MukCommon/MukVector.h"
+#include "MukCommon/vtk_tools.h"
 
 #include "MukImaging/muk_imaging_tools.h"
 
@@ -26,27 +25,25 @@ namespace muk
 
     from https://www.vtk.org/Wiki/VTK/Examples/Cxx/PolyData/PolyDataToImageData
   */
-  ImageInt3D::Pointer meshToBinaryImage(ImageInt3D* referenceImage, vtkPolyData* mesh, MukPixel label)
+  ImageInt3D::Pointer meshToBinaryImage(const ImageInt3D& referenceImage_, const vtkPolyData& mesh_, MukPixel label)
   {
+    const auto* referenceImage = &referenceImage_;
+    auto*       mesh = const_cast<vtkPolyData*>(&mesh_);
     ImageInt3D::Pointer result;
     {
       auto spacing = Vec3d(referenceImage->GetSpacing()[0], referenceImage->GetSpacing()[1], referenceImage->GetSpacing()[2]);
       auto origin  = Vec3d(referenceImage->GetOrigin()[0], referenceImage->GetOrigin()[1], referenceImage->GetOrigin()[2]);
       auto region  = referenceImage->GetLargestPossibleRegion();
       auto dim     = Vec3i(region.GetSize()[0], region.GetSize()[1], region.GetSize()[2]);
-      //auto whiteImage = make_vtk<vtkImageData>();
-      //whiteImage->SetSpacing(spacing.data());
-      //whiteImage->SetDimensions(dim[0], dim[1], dim[2]);
-      ////whiteImage->SetExtent(0, dim[0] - 1, 0, dim[1] - 1, 0, dim[2] - 1);
-      //whiteImage->SetOrigin(origin[0], origin[1], origin[2]);
-      //whiteImage->AllocateScalars(VTK_UNSIGNED_SHORT, 1);
 
       auto whiteFilter = make_itk<itk::ImageToVTKImageFilter<ImageInt3D>>();
       whiteFilter->SetInput(referenceImage);
       whiteFilter->Update();
 
+      // for whatever reason ImageToVTKImageFilter's input and output are the same
+      // because we do not want to change the input we have to make a deep copy here
       auto whiteImage = make_vtk<vtkImageData>();
-      whiteImage = whiteFilter->GetOutput();
+      whiteImage->DeepCopy(whiteFilter->GetOutput());
 
       // fill the image with background voxels:
       unsigned char inval = label;

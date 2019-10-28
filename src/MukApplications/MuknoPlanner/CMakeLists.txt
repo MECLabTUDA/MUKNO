@@ -139,7 +139,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER ${MODULE_NAME})
 gris_deploy(${PROJECT_NAME} "${MuknoII_BIN_DIR}" "")
 # docs currently do not exist
 #gris_deploy_directories(${PROJECT_NAME} "doc/${MODULE_NAME}/${PROJECT_NAME}" "${CMAKE_SOURCE_DIR}/doc/${MODULE_NAME}/${PROJECT_NAME}")
-
 # add binary directories, that have to be manually added (libraries using dlls, that are not targets)
 # --> Boost has targets, but dynamic linking messes with that
 # --> GMP is required through CGAL, but has no CMake Targets)

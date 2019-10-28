@@ -10,7 +10,7 @@ namespace gris
 {
   namespace muk
   {
-    MUK_ALGO_API ImageInt3D::Pointer meshToBinaryImage(ImageInt3D* referenceImage, vtkPolyData* mesh, MukPixel label = 1u);
+    MUK_ALGO_API ImageInt3D::Pointer meshToBinaryImage(const ImageInt3D& referenceImage, const vtkPolyData& mesh, MukPixel label = 1u);
   }
 }
 
