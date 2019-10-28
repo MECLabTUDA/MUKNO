@@ -45,7 +45,17 @@ namespace gris
       "Overlay3D",
       "PolyData",
     };
-
+    
+    static const std::array<std::string, enImageTypeSize> DataTypeNames = 
+    {
+      "ImageInt2D",
+      "ImageInt3D",
+      "ImageFloat3D",
+      "GradientImage3D",
+      "VtkImage",
+      "VtkMesh",
+      "VtkPolyData",
+    };
 
     template<typename T>
     auto* toDataType(void* pData)

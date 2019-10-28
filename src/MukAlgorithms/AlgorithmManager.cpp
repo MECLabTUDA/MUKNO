@@ -114,6 +114,17 @@ namespace muk
     {
       throw MUK_EXCEPTION("(Destination) algorithm with this ID does not exist:", std::to_string(dstAlgId).c_str());
     }
+
+    auto typeSrc = pSrc->second->getOutputType(srcPortId);
+    auto typeDst = pDst->second->getInputType(dstPortId);
+    if (typeSrc != typeDst)
+    {
+      const auto strSrc = DataTypeNames[typeSrc];
+      const auto strDst = DataTypeNames[typeDst];
+      const auto msg = (boost::format("Source data type: %s, Target data type: %s") % strSrc % strDst).str();
+      throw MUK_EXCEPTION("port type of source and destination mismatch!", msg.c_str());
+    }
+
     pDst->second->setInput(dstPortId, pSrc->second->getOutput(srcPortId));
 
     boost::add_edge(*srcID, *dstID, mAlgGraph);
