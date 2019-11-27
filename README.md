@@ -3,7 +3,7 @@ Preoperative planning framework for temporal bone surgery featuring image proces
 
 Overview
 
-This codebase was published along with our IPCAI 2019 submissions
+This codebase was published along with our submissions
 
     "Towards an automatic preoperative pipeline for image-guided temporal bone surgery".(IPCAI 2019)
     "Planning for Flexible Surgical Robots via Bézier Spline Translation".(RA-L 2019)
@@ -27,6 +27,7 @@ Dependencies
     The Visualization Toolkit (VTK) (https://vtk.org/)
     Insight Segmentaiton and Registration Toolkit (ITK) (https://itk.org/)
     Gurobi (when using the convex optimization option)
+    Tensorflow (when using the TensorflowCAPI option)
 
 Known good configurations
 
@@ -43,6 +44,7 @@ Tested only with Microsoft Visual Studio 2015, x64, release.
     VTK 7.1.1
     ITK 4.11
     Gurobi 8.0.0
+    Tensorflow 1.11.0 (libtensorflow-gpu-windows-x68_64-1.11.0)
 
 Libraries
 
@@ -54,6 +56,8 @@ Libraries
     MukVisualization provides classes that visualize trajectories, search graphs, surfaces meshes and other stuff via VTK.
     MukQt provides widget for the GUI using Qt.
     MukAppModels wraps the above to provide short and easy handling of the concepts of running image processing pipelines, perform trajectory planning, visualize and evaluate results.
+    MukConvexOptimization adds an implementation of an IPathOptimizer that performs Sequential Convex Optimization on Bézier Spline Trajectories.
+    MukTensorflowCAPI adds an implementation of an AlgorithmWrapper that performs inference with frozen Tensorflow Graphs. The single algorithm available is designed for running a slice-by-slice U-Net approach.
 
 Executables
 
