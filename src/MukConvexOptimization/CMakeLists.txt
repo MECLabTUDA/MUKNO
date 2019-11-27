@@ -127,5 +127,4 @@ source_group("Source Files\\bezier"		FILES ${Sources_bezier}	)
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER ${MODULE_NAME})
 
 # ---------- deploy and install
-gris_bundle_add_lookup_directories(${GUROBI_BIN_DIR})
 gris_deploy(${PROJECT_NAME} "${MuknoII_BIN_DIR}" "")

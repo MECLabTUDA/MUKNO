@@ -10,6 +10,10 @@
 #ifdef MUK_LINK_CONVEX_OPTIMIZATION
 #include "MukConvexOptimization/PluginManagerConvexOptimization.h"
 #endif
+#ifdef MUK_LINK_TENSORFLOW_CAPI
+#include "MukTensorflowCAPI/PluginManagerTensorflowCAPI.h"
+#endif
+
 // The required Versions are provided in private/requiredLibraryVersions.hxx.in.
 // CMAKE will configure the local required Version variables into a file in the binary directory.
 #include "private/requiredLibraryVersions.hxx"
@@ -39,6 +43,9 @@ int main(int argc, char ** argv)
     gris::muk::PluginManagerNavi::initialize();
 #ifdef MUK_LINK_CONVEX_OPTIMIZATION
     gris::muk::PluginManagerConvexOptimization::initialize();
+#endif
+#ifdef MUK_LINK_TENSORFLOW_CAPI
+    gris::muk::PluginManagerTensorflowCAPI::initialize();
 #endif
 
 #ifndef DEVELOP

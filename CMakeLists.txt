@@ -141,7 +141,20 @@ if (${MukLibs_ConvexOptimization})
   if(NOT ${GUROBI_FOUND})
     message(FATAL_ERROR "Gurobi not found.")
   endif()
+  gris_bundle_add_lookup_directories(${GUROBI_BIN_DIR})
 endif()
+
+# ----------------------
+# set optional libraries and applications that use the tensorflow C-API
+# ----------------------
+option(MukLibs_TensorflowCAPI "use the tensorflow plugin with its C-API" OFF)
+if (${MukLibs_TensorflowCAPI})
+  find_package(TensorflowCAPI REQUIRED)
+  if(NOT ${TensorflowCAPI_FOUND})
+    message(FATAL_ERROR "Tensorflow C-API not found.")
+  endif()
+endif()
+
 
 #Use solution folders.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

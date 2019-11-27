@@ -27,6 +27,12 @@ set(MODULE_NAME MukAppModels)
 add_subdirectory(${MODULE_NAME})
 set_target_properties(${MODULE_NAME} PROPERTIES FOLDER Libraries)
 
+if (${MukLibs_TensorflowCAPI})
+	set(MODULE_NAME MukTensorflowCAPI)
+	add_subdirectory(${MODULE_NAME})
+	set_target_properties(${MODULE_NAME} PROPERTIES FOLDER Libraries)
+endif()
+
 set(MODULE_NAME MukVisualization)
 add_subdirectory(${MODULE_NAME})
 set_target_properties(${MODULE_NAME} PROPERTIES FOLDER Libraries)

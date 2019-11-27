@@ -118,6 +118,13 @@ if(${MukLibs_ConvexOptimization})
   target_compile_definitions(${PROJECT_NAME} PUBLIC      MUK_LINK_CONVEX_OPTIMIZATION    )
 endif()
 
+if(${MukLibs_TensorflowCAPI})
+  target_link_libraries(${PROJECT_NAME} 
+	MukTensorflowCAPI
+  )
+  target_compile_definitions(${PROJECT_NAME} PUBLIC      MUK_LINK_TENSORFLOW_CAPI    )
+endif()
+
 # prepare Versions file
 gris_version_configure(${PROJECT_NAME})
 
